@@ -2,10 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<meta name="theme-color" content="#f5f0e3" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#fbf8f0" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#2a1b0d" media="(prefers-color-scheme: dark)" />
 <title>StudySpot — Find a place to study at VT</title>
 <meta name="description" content="StudySpot helps Virginia Tech students find an open seat, the right vibe, and book a group room in three taps." />
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" type="image/svg+xml" href="/icon.svg" />
+<link rel="apple-touch-icon" href="/icon.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="StudySpot" />
+<meta name="application-name" content="StudySpot" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="StudySpot — Find a place to study at VT" />
+<meta property="og:description" content="Live, crowdsourced occupancy for VT study spaces. Find an open seat before you walk over." />
+<meta property="og:type" content="website" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -148,14 +165,28 @@
   }
 
   @media (max-width: 720px) {
-    .stage { padding: 0; }
+    .stage { padding: 0; background: var(--cream-50); }
+    .stage::before, .stage::after { display: none; }
     .phone {
       width: 100vw; height: 100vh;
       border-radius: 0; padding: 0;
       box-shadow: none;
+      background: var(--cream-50);
     }
     .phone::before, .phone::after { display: none; }
     .phone__screen { border-radius: 0; }
+    .notch { display: none; }
+    .status-bar { display: none; }
+    .scroll-area { padding-top: env(safe-area-inset-top, 0); }
+    .map-header { padding-top: calc(20px + env(safe-area-inset-top, 0)); }
+    .booking-head, .page-head { padding-top: calc(20px + env(safe-area-inset-top, 0)); }
+    .nav-back, .nav-actions { top: calc(20px + env(safe-area-inset-top, 0)); }
+    .tabbar { padding-bottom: calc(8px + env(safe-area-inset-bottom, 14px)); }
+  }
+
+  /* In PWA standalone mode, hide desktop chrome and use safe-area insets */
+  @media all and (display-mode: standalone) {
+    .desktop-tag, .desktop-meta { display: none; }
   }
 
   /* iOS-style notch + status bar */
@@ -1100,6 +1131,115 @@
   .review-room h5 { font-size: 15px; font-weight: 600; color: var(--bark-900); }
   .review-room p { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
+  /* Crowdsourced report card */
+  .report-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px;
+    margin-top: 4px;
+  }
+  .report-card p {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+  .report-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .rbtn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 6px;
+    border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: var(--cream-50);
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    color: var(--bark-800);
+    cursor: pointer;
+    transition: transform var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+  }
+  .rbtn .d {
+    width: 14px; height: 14px;
+    border-radius: 99px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.6);
+  }
+  .rbtn.open .d { background: var(--open); }
+  .rbtn.fill .d { background: var(--fill); }
+  .rbtn.full .d { background: var(--full); }
+  .rbtn:hover { border-color: var(--bark-300); }
+  .rbtn:active { transform: scale(0.97); }
+
+  /* Recent reports list */
+  .reports-list {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .empty-reports {
+    padding: 18px; text-align: center; color: var(--muted);
+    font-size: 12.5px;
+  }
+  .report-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+  }
+  .report-row + .report-row { border-top: 1px solid var(--line); }
+  .ravatar {
+    width: 32px; height: 32px;
+    border-radius: 99px;
+    color: var(--cream-50);
+    display: grid; place-items: center;
+    font-family: "Instrument Serif", serif;
+    font-size: 16px;
+    flex: 0 0 auto;
+    box-shadow: 0 0 0 1px rgba(46,28,10,0.04);
+  }
+  .ravatar.tiny { width: 18px; height: 18px; font-size: 10px; }
+  .ravatar.small { width: 24px; height: 24px; font-size: 12px; }
+  .rbody { flex: 1; min-width: 0; }
+  .rname {
+    font-size: 13.5px; font-weight: 600; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .rmeta {
+    font-size: 11px; color: var(--muted); margin-top: 1px;
+  }
+  .rstatus {
+    flex: 0 0 auto;
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .rstatus.open { background: var(--open-50); color: #3a5d39; }
+  .rstatus.fill { background: var(--fill-50); color: #7a5510; }
+  .rstatus.full { background: var(--full-50); color: #803128; }
+  .you-tag {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 1px 6px;
+    background: var(--bark-900); color: var(--cream-50);
+    border-radius: 99px;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    vertical-align: 1px;
+  }
+  .section-h .muted { color: var(--bark-400); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11px; }
+
+  /* Preview foot — last reporter line */
+  .preview-foot {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
   /* Generic page heading */
   .page-head {
     padding: 60px 22px 6px;
@@ -1552,7 +1692,7 @@
           </svg>
         </div>
         <h1>find a quiet seat,<br/><em>before you walk over.</em></h1>
-        <p>Real-time occupancy, your favorite filters, and a three-tap room booking — across the entire VT campus.</p>
+        <p>Live occupancy <em style="font-style: italic;">reported by VT students like you</em> — plus filters, hours, and three-tap room booking. The more we share, the smarter it gets.</p>
         <button class="onb-cta" id="onbStart">Find a study spot</button>
         <button class="onb-skip" id="onbSkip">Maybe later</button>
       </div>
@@ -1566,7 +1706,7 @@
 
             <div class="map-header">
               <div class="greeting">good afternoon, <em>Priya</em></div>
-              <div class="sub-greeting"><b>7 spots</b> within 8 minutes · partly cloudy, 64°</div>
+              <div class="sub-greeting"><b>7 spots</b> · <b>—</b> students reporting in the last hour</div>
               <div class="search">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
                 <input id="searchInput" type="text" placeholder="Search buildings, rooms, or amenities…" />
@@ -1821,8 +1961,8 @@
             </div>
             <div class="profile-stats">
               <div class="pstat"><div class="v">14</div><div class="l">Bookings</div></div>
-              <div class="pstat"><div class="v">86h</div><div class="l">Studied</div></div>
-              <div class="pstat"><div class="v">4.6</div><div class="l">★ Rating</div></div>
+              <div class="pstat"><div class="v">86<small>h</small></div><div class="l">Studied</div></div>
+              <div class="pstat"><div class="v" id="myReportCount">4</div><div class="l">Reports</div></div>
             </div>
             <div class="menu" style="margin-top: 18px;">
               <div class="menu-row" id="demoModeMenu">
@@ -1913,14 +2053,8 @@
 
 const SPOTS = [
   {
-    id: "newman",
-    name: "Newman Library",
-    type: "Main university library",
-    initial: "N",
-    occPct: 75,
-    walkMin: 7,
-    hours: "7:00 AM — 2:00 AM",
-    openNow: true,
+    id: "newman", name: "Newman Library", type: "Main university library", initial: "N",
+    walkMin: 7, hours: "7:00 AM — 2:00 AM", openNow: true,
     amenities: { quiet: true, outlets: true, wifi: true, group: true },
     description: "VT's main library. The fourth floor is where it gets serious — silent, well-lit, all the outlets you need. Group rooms book out fast around midterms.",
     rooms: [
@@ -1928,17 +2062,11 @@ const SPOTS = [
       { id: "n-312", name: "Group Room 312", capacity: 6, floor: "3rd floor · whiteboard" },
       { id: "n-418", name: "Quiet Pod 418", capacity: 2, floor: "4th floor · silent zone" },
     ],
-    pos: { x: 79, y: 22 } // % of map
+    pos: { x: 79, y: 22 }
   },
   {
-    id: "mcbryde",
-    name: "McBryde Hall",
-    type: "Math &amp; classroom building",
-    initial: "M",
-    occPct: 30,
-    walkMin: 4,
-    hours: "7:00 AM — 11:00 PM",
-    openNow: true,
+    id: "mcbryde", name: "McBryde Hall", type: "Math &amp; classroom building", initial: "M",
+    walkMin: 4, hours: "7:00 AM — 11:00 PM", openNow: true,
     amenities: { quiet: true, outlets: true, wifi: true, group: true },
     description: "Quiet classroom building right off the Drillfield. After hours, the second floor lounges are some of the most underrated study spots on campus.",
     rooms: [
@@ -1948,14 +2076,8 @@ const SPOTS = [
     pos: { x: 51, y: 84 }
   },
   {
-    id: "torgersen",
-    name: "Torgersen Hall",
-    type: "Engineering · CS hub",
-    initial: "T",
-    occPct: 45,
-    walkMin: 5,
-    hours: "24 hours · with student ID",
-    openNow: true,
+    id: "torgersen", name: "Torgersen Hall", type: "Engineering · CS hub", initial: "T",
+    walkMin: 5, hours: "24 hours · with student ID", openNow: true,
     amenities: { quiet: false, outlets: true, wifi: true, group: true },
     description: "The bridge to Newman. CS students live here. Loud-ish on the first floor, quieter past the bridge. Group rooms can be booked up to 7 days ahead.",
     rooms: [
@@ -1965,42 +2087,24 @@ const SPOTS = [
     pos: { x: 83, y: 64 }
   },
   {
-    id: "goodwin",
-    name: "Goodwin Hall",
-    type: "Engineering open atrium",
-    initial: "G",
-    occPct: 22,
-    walkMin: 8,
-    hours: "6:00 AM — 12:00 AM",
-    openNow: true,
+    id: "goodwin", name: "Goodwin Hall", type: "Engineering open atrium", initial: "G",
+    walkMin: 8, hours: "6:00 AM — 12:00 AM", openNow: true,
     amenities: { quiet: true, outlets: true, wifi: true, group: false },
     description: "Newer engineering building with cathedral-tall atriums. Lots of natural light, soft seating, plenty of outlets. No bookable rooms — first come, first sit.",
     rooms: [],
     pos: { x: 18, y: 64 }
   },
   {
-    id: "squires",
-    name: "Squires Student Center",
-    type: "Student union · cafés",
-    initial: "S",
-    occPct: 88,
-    walkMin: 6,
-    hours: "6:00 AM — 1:00 AM",
-    openNow: true,
+    id: "squires", name: "Squires Student Center", type: "Student union · cafés", initial: "S",
+    walkMin: 6, hours: "6:00 AM — 1:00 AM", openNow: true,
     amenities: { quiet: false, outlets: true, wifi: true, group: false },
     description: "Buzzing common area with a coffee shop and food court. Great for a casual session with a coffee, terrible for focused exam prep.",
     rooms: [],
     pos: { x: 51, y: 18 }
   },
   {
-    id: "surge",
-    name: "Surge Building",
-    type: "Quiet office building",
-    initial: "U",
-    occPct: 18,
-    walkMin: 9,
-    hours: "8:00 AM — 9:00 PM",
-    openNow: true,
+    id: "surge", name: "Surge Building", type: "Quiet office building", initial: "U",
+    walkMin: 9, hours: "8:00 AM — 9:00 PM", openNow: true,
     amenities: { quiet: true, outlets: true, wifi: true, group: true },
     description: "The hidden gem. Almost never crowded. Good if you want to disappear for three hours and actually get something done.",
     rooms: [
@@ -2009,20 +2113,98 @@ const SPOTS = [
     pos: { x: 17, y: 20 }
   },
   {
-    id: "drillfield",
-    name: "Drillfield Lawn",
-    type: "Outdoor study space",
-    initial: "D",
-    occPct: 55,
-    walkMin: 3,
-    hours: "Sunrise — sunset",
-    openNow: true,
+    id: "drillfield", name: "Drillfield Lawn", type: "Outdoor study space", initial: "D",
+    walkMin: 3, hours: "Sunrise — sunset", openNow: true,
     amenities: { quiet: true, outlets: false, wifi: true, group: false },
     description: "Outdoor study under the tree on the south end. Bring your charged laptop and sunglasses. Weather-dependent, obviously.",
     rooms: [],
     pos: { x: 51, y: 50 }
   }
 ];
+
+/* Users — fellow VT students who report on spots, plus Priya (the current user) */
+const USERS = [
+  { id: "priya",  name: "Priya Patel",     initials: "P", year: "Junior",    major: "Computer Science",     color: "#3a2614" },
+  { id: "aanya",  name: "Aanya Kumar",     initials: "A", year: "Senior",    major: "Industrial Design",    color: "#6f9b6c" },
+  { id: "marcus", name: "Marcus Chen",     initials: "M", year: "Sophomore", major: "Computer Engineering", color: "#d39a3b" },
+  { id: "sofia",  name: "Sofia Alvarez",   initials: "S", year: "Junior",    major: "Mechanical Eng.",      color: "#c45a4a" },
+  { id: "liam",   name: "Liam O'Brien",    initials: "L", year: "Senior",    major: "Architecture",         color: "#6b4f37" },
+  { id: "jordan", name: "Jordan Lee",      initials: "J", year: "Freshman",  major: "Undeclared",           color: "#8a6e54" },
+  { id: "kai",    name: "Kai Tanaka",      initials: "K", year: "Junior",    major: "Math",                 color: "#5a8b6e" },
+  { id: "ravi",   name: "Ravi Sharma",     initials: "R", year: "Sophomore", major: "Statistics",           color: "#a78c70" },
+  { id: "emma",   name: "Emma Wilson",     initials: "E", year: "Senior",    major: "Psychology",           color: "#7a9659" },
+];
+const ME = "priya";
+function userById(id) { return USERS.find(u => u.id === id); }
+
+/* Reports — what students saw recently. Occupancy is derived from these. */
+let REPORTS = [
+  // Newman — packed
+  { id: "r1",  spotId: "newman",     userId: "aanya",  status: "full", minsAgo: 3 },
+  { id: "r2",  spotId: "newman",     userId: "marcus", status: "full", minsAgo: 7 },
+  { id: "r3",  spotId: "newman",     userId: "sofia",  status: "fill", minsAgo: 12 },
+  { id: "r4",  spotId: "newman",     userId: "liam",   status: "full", minsAgo: 22 },
+  { id: "r5",  spotId: "newman",     userId: "jordan", status: "fill", minsAgo: 31 },
+  // McBryde — open
+  { id: "r6",  spotId: "mcbryde",    userId: "kai",    status: "open", minsAgo: 5 },
+  { id: "r7",  spotId: "mcbryde",    userId: "emma",   status: "open", minsAgo: 14 },
+  { id: "r8",  spotId: "mcbryde",    userId: "ravi",   status: "fill", minsAgo: 28 },
+  // Torgersen — filling
+  { id: "r9",  spotId: "torgersen",  userId: "marcus", status: "fill", minsAgo: 4 },
+  { id: "r10", spotId: "torgersen",  userId: "kai",    status: "fill", minsAgo: 11 },
+  { id: "r11", spotId: "torgersen",  userId: "aanya",  status: "open", minsAgo: 19 },
+  { id: "r12", spotId: "torgersen",  userId: "ravi",   status: "fill", minsAgo: 27 },
+  // Goodwin — quiet
+  { id: "r13", spotId: "goodwin",    userId: "sofia",  status: "open", minsAgo: 9 },
+  { id: "r14", spotId: "goodwin",    userId: "emma",   status: "open", minsAgo: 21 },
+  // Squires — slammed
+  { id: "r15", spotId: "squires",    userId: "jordan", status: "full", minsAgo: 2 },
+  { id: "r16", spotId: "squires",    userId: "liam",   status: "full", minsAgo: 6 },
+  { id: "r17", spotId: "squires",    userId: "marcus", status: "full", minsAgo: 13 },
+  { id: "r18", spotId: "squires",    userId: "aanya",  status: "fill", minsAgo: 24 },
+  // Surge — empty
+  { id: "r19", spotId: "surge",      userId: "kai",    status: "open", minsAgo: 16 },
+  { id: "r20", spotId: "surge",      userId: "ravi",   status: "open", minsAgo: 35 },
+  // Drillfield — pleasant afternoon
+  { id: "r21", spotId: "drillfield", userId: "emma",   status: "fill", minsAgo: 8 },
+  { id: "r22", spotId: "drillfield", userId: "sofia",  status: "fill", minsAgo: 20 },
+];
+
+/* Priya's prior contributions (this week) — for the profile stat */
+let myReportCount = 4;
+
+const STATUS_SCORE = { open: 18, fill: 55, full: 88 };
+const REPORT_WINDOW = 45; // mins — older reports are dropped
+
+function recalculateOccupancies() {
+  for (const s of SPOTS) {
+    const recent = REPORTS.filter(r => r.spotId === s.id && r.minsAgo < REPORT_WINDOW);
+    s.reportCount = recent.length;
+    if (recent.length === 0) {
+      s.occPct = 30; s.lastReport = null; continue;
+    }
+    let totalW = 0, totalScore = 0;
+    for (const r of recent) {
+      const w = Math.max(0.3, 1 - r.minsAgo / REPORT_WINDOW);
+      totalScore += STATUS_SCORE[r.status] * w;
+      totalW += w;
+    }
+    s.occPct = Math.round(totalScore / totalW);
+    s.lastReport = recent.slice().sort((a, b) => a.minsAgo - b.minsAgo)[0];
+  }
+}
+
+function totalRecentReporters() {
+  const ids = new Set();
+  REPORTS.forEach(r => { if (r.minsAgo < REPORT_WINDOW) ids.add(r.userId); });
+  return ids.size;
+}
+
+function relTime(mins) {
+  if (mins < 1) return "just now";
+  if (mins < 60) return mins + " min ago";
+  return Math.round(mins / 60) + "h ago";
+}
 
 const FILTERS = [
   { id: "all", label: "All", icon: null },
@@ -2215,15 +2397,20 @@ function renderPreview(id) {
   if (!s) return;
   const wrap = $("#preview");
   const cls = occClass(s.occPct);
+  const lr = s.lastReport ? userById(s.lastReport.userId) : null;
+  const reporterLine = lr
+    ? '<div class="preview-foot"><div class="ravatar tiny" style="background:' + lr.color + '">' + lr.initials + '</div>Last reported by ' + lr.name.split(" ")[0] + ' · ' + relTime(s.lastReport.minsAgo) + '</div>'
+    : '';
   wrap.innerHTML = ''
     + '<div class="preview-row">'
     +   '<div class="preview-thumb">' + s.initial + '</div>'
     +   '<div class="preview-info">'
     +     '<h4>' + s.name + '</h4>'
-    +     '<p>' + s.walkMin + ' min walk <span class="dot"></span> ' + s.occPct + '% full <span class="dot"></span> ' + s.type + '</p>'
+    +     '<p>' + s.walkMin + ' min walk <span class="dot"></span> ' + s.occPct + '% full <span class="dot"></span> ' + s.reportCount + ' reports</p>'
     +   '</div>'
     +   '<span class="occ-pill ' + cls + '">' + occLabel(s.occPct) + '</span>'
-    + '</div>';
+    + '</div>'
+    + reporterLine;
   wrap.classList.add("is-visible");
   wrap.onclick = function() { openDetail(id); };
 }
@@ -2246,6 +2433,8 @@ function renderList() {
   }
   cont.innerHTML = filtered.map(s => {
     const cls = occClass(s.occPct);
+    const lr = s.lastReport ? userById(s.lastReport.userId) : null;
+    const reporter = lr ? '<span class="dot"></span> ' + lr.name.split(" ")[0] + ' · ' + relTime(s.lastReport.minsAgo) : '';
     return ''
       + '<div class="list-row" data-spot="' + s.id + '">'
       +   '<div class="list-thumb">' + s.initial + '</div>'
@@ -2253,7 +2442,8 @@ function renderList() {
       +     '<h4>' + s.name + '</h4>'
       +     '<div class="meta">'
       +       s.walkMin + ' min <span class="dot"></span> '
-      +       s.type
+      +       s.reportCount + ' reports'
+      +       reporter
       +     '</div>'
       +     '<div class="occ-bar"><i class="' + cls + '" style="width:' + s.occPct + '%"></i></div>'
       +   '</div>'
@@ -2345,6 +2535,10 @@ function renderDetail() {
     +     '<div class="stat"><div class="v">' + s.rooms.length + '</div><div class="l">' + (s.rooms.length === 1 ? "room" : "rooms") + '</div></div>'
     +   '</div>'
     +   '<p style="margin-top: 16px; font-size: 13.5px; line-height: 1.55; color: var(--bark-700);">' + s.description + '</p>'
+    +   '<div class="section-h">How busy is it right now?</div>'
+    +   renderReportCard(s)
+    +   '<div class="section-h">Recent reports <span class="muted">· ' + s.reportCount + ' in the last 30 min</span></div>'
+    +   '<div class="reports-list">' + renderRecentReports(s) + '</div>'
     +   '<div class="section-h">Amenities</div>'
     +   '<div class="amenities">'
     +     amen.map(a => '<div class="amen ' + (a.on ? "" : "is-off") + '"><span class="ic">' + a.icon + '</span>' + a.label + '</div>').join("")
@@ -2606,13 +2800,21 @@ function setDemoMode(on) {
   }
 }
 function stepDemo() {
-  // Random small shift on a random spot
+  // Drop in a fake report from a random non-Priya user
   const s = SPOTS[Math.floor(Math.random() * SPOTS.length)];
-  const delta = Math.floor(Math.random() * 11) - 5;
-  s.occPct = Math.max(8, Math.min(98, s.occPct + delta));
+  const candidates = USERS.filter(u => u.id !== ME);
+  const u = candidates[Math.floor(Math.random() * candidates.length)];
+  const statuses = ["open", "fill", "full"];
+  const status = statuses[Math.floor(Math.random() * statuses.length)];
+  REPORTS.unshift({ id: "demo" + Date.now(), spotId: s.id, userId: u.id, status, minsAgo: 0 });
+  // Age existing reports a touch so the feed feels alive
+  REPORTS.forEach(r => { if (r.minsAgo < 60) r.minsAgo += 0.5; });
+  recalculateOccupancies();
   renderMap();
   if (state.viewMode === "list") renderList();
   if (state.preview === s.id) renderPreview(s.id);
+  if (state.screen === "detail" && state.selectedSpotId === s.id) renderDetail();
+  renderGreetingMeta();
 }
 
 /* -------------------- Save toggle -------------------- */
@@ -2650,14 +2852,96 @@ function filterSearch(q) {
   }).join("");
 }
 
+/* -------------------- Reports -------------------- */
+
+function submitReport(spotId, status) {
+  const newId = "rme" + Date.now();
+  REPORTS.unshift({ id: newId, spotId, userId: ME, status, minsAgo: 0 });
+  myReportCount += 1;
+  recalculateOccupancies();
+  // Update displayed views
+  renderMap();
+  if (state.viewMode === "list") renderList();
+  if (state.preview === spotId) renderPreview(spotId);
+  if (state.screen === "detail" && state.selectedSpotId === spotId) {
+    renderDetail();
+  }
+  renderProfile();
+  renderGreetingMeta();
+  showToast("Thanks for reporting · +1 contribution");
+}
+
+function renderRecentReports(spot) {
+  const recent = REPORTS
+    .filter(r => r.spotId === spot.id && r.minsAgo < REPORT_WINDOW)
+    .sort((a, b) => a.minsAgo - b.minsAgo)
+    .slice(0, 5);
+  if (recent.length === 0) {
+    return '<div class="empty-reports">No reports yet — be the first.</div>';
+  }
+  return recent.map(r => {
+    const u = userById(r.userId);
+    const isMe = u.id === ME;
+    return ''
+      + '<div class="report-row">'
+      +   '<div class="ravatar" style="background:' + u.color + '">' + u.initials + '</div>'
+      +   '<div class="rbody">'
+      +     '<div class="rname">' + u.name + (isMe ? ' <span class="you-tag">you</span>' : '') + '</div>'
+      +     '<div class="rmeta">' + u.year + ' · ' + u.major + ' · ' + relTime(r.minsAgo) + '</div>'
+      +   '</div>'
+      +   '<span class="rstatus ' + r.status + '">' + (r.status === "open" ? "Open" : r.status === "fill" ? "Filling" : "Full") + '</span>'
+      + '</div>';
+  }).join("");
+}
+
+function renderReportCard(spot) {
+  const myRecent = REPORTS.find(r => r.spotId === spot.id && r.userId === ME && r.minsAgo < 10);
+  const sub = myRecent
+    ? "You reported " + relTime(myRecent.minsAgo) + " — update if it changed."
+    : "Tell your peers what you see right now.";
+  return ''
+    + '<div class="report-card">'
+    +   '<p>' + sub + '</p>'
+    +   '<div class="report-buttons">'
+    +     '<button class="rbtn open"  data-report="open"><span class="d"></span>Open</button>'
+    +     '<button class="rbtn fill"  data-report="fill"><span class="d"></span>Filling</button>'
+    +     '<button class="rbtn full"  data-report="full"><span class="d"></span>Full</button>'
+    +   '</div>'
+    + '</div>';
+}
+
+function renderGreetingMeta() {
+  const el = document.querySelector(".sub-greeting");
+  if (!el) return;
+  el.innerHTML = '<b>' + SPOTS.length + ' spots</b> · <b>' + totalRecentReporters() + '</b> students reporting in the last hour';
+}
+
+function renderProfile() {
+  const el = document.getElementById("myReportCount");
+  if (el) el.textContent = myReportCount;
+}
+
+/* -------------------- Service worker -------------------- */
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  if (location.protocol !== "https:" && location.hostname !== "localhost") return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
+
 /* -------------------- Wire-up -------------------- */
 
 function init() {
+  recalculateOccupancies();
   renderChips();
   renderMap();
   renderList();
   renderBookings();
   renderSaved();
+  renderProfile();
+  renderGreetingMeta();
+  registerServiceWorker();
 
   // Onboarding dismiss
   $("#onbStart").addEventListener("click", () => $("#onb").classList.add("dismissed"));
@@ -2731,6 +3015,12 @@ function init() {
   // Detail save/share
   $("#saveBtn").addEventListener("click", () => toggleSave(state.selectedSpotId));
   $("#shareBtn").addEventListener("click", openShareSheet);
+
+  // Report buttons (delegated, since detail re-renders)
+  $('.screen[data-screen="detail"]').addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-report]");
+    if (btn) submitReport(state.selectedSpotId, btn.dataset.report);
+  });
 
   // Bookings tab open spot
   $("#bookingsUpcoming").addEventListener("click", (e) => {

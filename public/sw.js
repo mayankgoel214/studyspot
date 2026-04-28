@@ -1,13 +1,11 @@
-const CACHE = "studyspot-v3";
+const CACHE = "studyspot-app-v1";
 const PRECACHE = [
-  "/",
-  "/index.html",
   "/manifest.webmanifest",
   "/icon.svg",
   "/icon-192.png",
   "/icon-512.png",
   "/icon-maskable-512.png",
-  "/apple-touch-icon.png"
+  "/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -29,26 +27,24 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Network-first with cache fallback for HTML; cache-first for static assets.
+  // Network-first for HTML so users always get the latest auth state.
   const isHTML = req.headers.get("accept")?.includes("text/html");
   if (isHTML) {
     event.respondWith(
+      fetch(req).catch(() => caches.match(req).then((m) => m || caches.match("/")))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (images, fonts).
+  event.respondWith(
+    caches.match(req).then((cached) =>
+      cached ||
       fetch(req).then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));
         return res;
-      }).catch(() => caches.match(req).then((m) => m || caches.match("/")))
-    );
-  } else {
-    event.respondWith(
-      caches.match(req).then((cached) =>
-        cached ||
-        fetch(req).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-          return res;
-        }).catch(() => cached)
-      )
-    );
-  }
+      }).catch(() => cached)
+    )
+  );
 });

@@ -1,0 +1,2797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#f5f0e3" />
+<title>StudySpot — Find a place to study at VT</title>
+<meta name="description" content="StudySpot helps Virginia Tech students find an open seat, the right vibe, and book a group room in three taps." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream-50: #fbf8f0;
+    --cream-100: #f5efe1;
+    --cream-200: #ece4cf;
+    --cream-300: #ddd1b2;
+    --paper:    #f7f1e1;
+    --bark-900: #2a1b0d;
+    --bark-800: #3a2614;
+    --bark-700: #4f3621;
+    --bark-600: #6b4f37;
+    --bark-500: #8a6e54;
+    --bark-400: #a78c70;
+    --bark-300: #c5af93;
+    --ink:      #1f140a;
+    --muted:    #7a6750;
+    --line:     #e2d5b8;
+
+    --open:    #6f9b6c;
+    --open-50: #d9e6d4;
+    --fill:    #d39a3b;
+    --fill-50: #f3e2bd;
+    --full:    #c45a4a;
+    --full-50: #f3cfc7;
+
+    --shadow-sm: 0 1px 2px rgba(46, 28, 10, 0.06);
+    --shadow-md: 0 6px 18px -8px rgba(46, 28, 10, 0.18), 0 2px 4px rgba(46, 28, 10, 0.04);
+    --shadow-lg: 0 24px 48px -20px rgba(46, 28, 10, 0.30), 0 6px 12px rgba(46, 28, 10, 0.06);
+    --shadow-pin: 0 4px 8px rgba(46, 28, 10, 0.25), 0 1px 2px rgba(46, 28, 10, 0.18);
+
+    --r-xs: 8px;
+    --r-sm: 12px;
+    --r-md: 16px;
+    --r-lg: 22px;
+    --r-xl: 28px;
+    --r-2xl: 36px;
+
+    --t-fast: 180ms cubic-bezier(.2,.8,.2,1);
+    --t-med:  280ms cubic-bezier(.2,.8,.2,1);
+    --t-slow: 480ms cubic-bezier(.2,.8,.2,1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: #2c1f15;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv02", "cv11";
+    letter-spacing: -0.01em;
+  }
+
+  /* Desktop background — warm, layered, paper-y */
+  .stage {
+    position: fixed; inset: 0;
+    display: grid; place-items: center;
+    background:
+      radial-gradient(1200px 800px at 30% 20%, #5a3f24 0%, transparent 60%),
+      radial-gradient(900px 600px at 80% 80%, #3d2814 0%, transparent 55%),
+      linear-gradient(135deg, #2c1d10 0%, #1f1308 100%);
+    overflow: hidden;
+  }
+  .stage::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0 0.65 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: .35;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .stage::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.45) 100%);
+    pointer-events: none;
+  }
+
+  .desktop-tag {
+    position: absolute; top: 28px; left: 32px;
+    color: rgba(247, 241, 225, 0.55);
+    font-family: "Instrument Serif", serif;
+    font-size: 22px;
+    letter-spacing: 0.01em;
+    z-index: 2;
+  }
+  .desktop-tag em { font-style: italic; color: rgba(247, 241, 225, 0.78); }
+  .desktop-meta {
+    position: absolute; bottom: 28px; left: 32px;
+    color: rgba(247, 241, 225, 0.45);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    z-index: 2;
+    line-height: 1.7;
+  }
+  .desktop-meta span { color: rgba(247, 241, 225, 0.7); }
+
+  @media (max-width: 720px) {
+    .desktop-tag, .desktop-meta { display: none; }
+    .stage { background: var(--cream-50); }
+    .stage::before, .stage::after { display: none; }
+  }
+
+  /* Phone frame */
+  .phone {
+    position: relative;
+    width: 390px; height: 820px;
+    background: #0c0a08;
+    border-radius: 56px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #1c150e,
+      0 50px 80px -30px rgba(0,0,0,0.7),
+      0 0 0 8px rgba(255,255,255,0.02);
+    z-index: 3;
+  }
+  .phone::before, .phone::after {
+    content: "";
+    position: absolute; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+  }
+  .phone::before { top: -3px; width: 120px; height: 6px; }
+  .phone::after  { bottom: -3px; width: 100px; height: 6px; }
+
+  .phone__screen {
+    position: relative;
+    width: 100%; height: 100%;
+    background: var(--cream-50);
+    border-radius: 44px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  @media (max-width: 720px) {
+    .stage { padding: 0; }
+    .phone {
+      width: 100vw; height: 100vh;
+      border-radius: 0; padding: 0;
+      box-shadow: none;
+    }
+    .phone::before, .phone::after { display: none; }
+    .phone__screen { border-radius: 0; }
+  }
+
+  /* iOS-style notch + status bar */
+  .notch {
+    position: absolute; top: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 28px;
+    background: #0c0a08;
+    border-radius: 99px;
+    z-index: 50;
+  }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 50px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px 0 32px;
+    font-size: 15px; font-weight: 600;
+    color: var(--bark-900);
+    z-index: 40;
+    pointer-events: none;
+  }
+  .status-bar .right { display: flex; gap: 6px; align-items: center; }
+  .status-bar svg { display: block; }
+
+  /* Screen stack */
+  .stack {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+  .screen {
+    position: absolute; inset: 0;
+    background: var(--cream-50);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform var(--t-slow), opacity var(--t-slow);
+    will-change: transform, opacity;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen { scrollbar-width: none; }
+
+  .screen.is-active {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .screen.is-prev {
+    transform: translateX(-22%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Pages can opt for fade only (e.g. tab swaps) */
+  body.tab-fade .screen.is-active { animation: fadeIn var(--t-med); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Common containers */
+  .pad { padding: 0 22px; }
+  .scroll-area { padding-bottom: 110px; }
+
+  /* Map header */
+  .map-header { padding: 60px 22px 14px; }
+  .greeting {
+    font-family: "Instrument Serif", serif;
+    font-size: 30px; line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--bark-900);
+    margin-bottom: 4px;
+  }
+  .greeting em { font-style: italic; color: var(--bark-700); }
+  .sub-greeting {
+    font-size: 13px; color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+  .sub-greeting b { color: var(--bark-800); font-weight: 600; }
+
+  .search {
+    margin-top: 16px;
+    display: flex; align-items: center;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .search svg { flex: 0 0 auto; color: var(--bark-600); }
+  .search input {
+    border: none; outline: none; background: transparent;
+    margin-left: 10px;
+    font-family: inherit; font-size: 15px;
+    color: var(--ink);
+    width: 100%;
+    letter-spacing: -0.01em;
+  }
+  .search input::placeholder { color: var(--bark-500); }
+  .search .kbd {
+    margin-left: 8px;
+    background: var(--cream-100);
+    border-radius: 6px; padding: 2px 6px;
+    font-size: 11px; color: var(--bark-600); font-weight: 600;
+    border: 1px solid var(--line);
+  }
+
+  /* Filter chips */
+  .chips {
+    display: flex; gap: 8px;
+    padding: 14px 22px 6px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips { scrollbar-width: none; }
+
+  .chip {
+    flex: 0 0 auto;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 14px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    font-size: 13px; font-weight: 500;
+    color: var(--bark-800);
+    cursor: pointer;
+    transition: transform var(--t-fast), background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+    white-space: nowrap;
+    user-select: none;
+    scroll-snap-align: start;
+  }
+  .chip svg { width: 14px; height: 14px; }
+  .chip:hover { border-color: var(--bark-300); }
+  .chip:active { transform: scale(.96); }
+  .chip.is-active {
+    background: var(--bark-900);
+    color: var(--cream-50);
+    border-color: var(--bark-900);
+  }
+  .chip.is-active .chip-dot { background: var(--cream-100); }
+  .chip-dot {
+    width: 6px; height: 6px; border-radius: 99px; background: var(--bark-700);
+  }
+
+  /* Map view */
+  .map-wrap {
+    position: relative;
+    margin: 12px 22px 0;
+    height: 420px;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    background: linear-gradient(160deg, #ece2c3 0%, #d8caa0 100%);
+    box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(255,255,255,0.4);
+  }
+  .map-svg {
+    width: 100%; height: 100%;
+    display: block;
+  }
+  /* Pin overlay */
+  .pin-layer {
+    position: absolute; inset: 0;
+    pointer-events: none;
+  }
+  .pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform var(--t-fast);
+  }
+  .pin:active { transform: translate(-50%, -100%) scale(0.94); }
+  .pin-shadow {
+    position: absolute; bottom: -4px; left: 50%;
+    width: 22px; height: 6px;
+    background: rgba(46,28,10,0.18);
+    border-radius: 99px;
+    transform: translateX(-50%);
+    filter: blur(2px);
+  }
+  .pin-bubble {
+    position: relative;
+    background: #fff;
+    border-radius: 99px;
+    padding: 4px 9px 4px 6px;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow-pin);
+    border: 1px solid rgba(46,28,10,0.06);
+    font-size: 12px; font-weight: 600;
+    color: var(--bark-800);
+  }
+  .pin-bubble::after {
+    content: "";
+    position: absolute; left: 50%; bottom: -5px;
+    width: 10px; height: 10px;
+    background: #fff;
+    transform: translateX(-50%) rotate(45deg);
+    border-right: 1px solid rgba(46,28,10,0.06);
+    border-bottom: 1px solid rgba(46,28,10,0.06);
+  }
+  .pin-dot {
+    width: 10px; height: 10px; border-radius: 99px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.85);
+  }
+  .pin-dot.open { background: var(--open); }
+  .pin-dot.fill { background: var(--fill); }
+  .pin-dot.full { background: var(--full); }
+
+  .pin .pulse {
+    position: absolute; left: 50%; top: 50%;
+    width: 12px; height: 12px;
+    border-radius: 99px;
+    transform: translate(-50%, -50%);
+    animation: pulse 2.4s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  .pin .pulse.open { background: rgba(111, 155, 108, 0.45); }
+  .pin .pulse.fill { background: rgba(211, 154, 59, 0.45); }
+  .pin .pulse.full { background: rgba(196, 90, 74, 0.45); }
+  @keyframes pulse {
+    0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    80%  { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+  }
+
+  .pin.is-selected .pin-bubble {
+    background: var(--bark-900);
+    color: var(--cream-50);
+    transform: scale(1.06);
+  }
+  .pin.is-selected .pin-bubble::after {
+    background: var(--bark-900);
+    border-color: transparent;
+  }
+  .pin.is-selected .pin-dot {
+    box-shadow: 0 0 0 3px rgba(42,27,13,0.85);
+  }
+
+  /* Map legend + view toggle */
+  .legend {
+    position: absolute; left: 14px; bottom: 14px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex; gap: 12px;
+    font-size: 11px; color: var(--bark-800); font-weight: 500;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(46,28,10,0.06);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i {
+    width: 8px; height: 8px; border-radius: 99px; display: inline-block;
+  }
+  .legend .o { background: var(--open); }
+  .legend .f { background: var(--fill); }
+  .legend .x { background: var(--full); }
+
+  .toggle {
+    position: absolute; right: 14px; top: 14px;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(8px);
+    border-radius: 99px;
+    padding: 4px;
+    display: flex;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(46,28,10,0.06);
+  }
+  .toggle button {
+    border: none; background: transparent;
+    padding: 7px 12px;
+    border-radius: 99px;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    color: var(--bark-700); cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .toggle button.is-active {
+    background: var(--bark-900);
+    color: var(--cream-50);
+  }
+
+  /* Demo mode toggle in corner */
+  .demo-pill {
+    position: absolute; right: 14px; bottom: 14px;
+    display: inline-flex; gap: 6px; align-items: center;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    border-radius: 99px;
+    padding: 6px 10px 6px 8px;
+    font-size: 11px; color: var(--bark-700); font-weight: 600;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(46,28,10,0.06);
+    cursor: pointer; user-select: none;
+  }
+  .demo-pill .led {
+    width: 7px; height: 7px; border-radius: 99px;
+    background: var(--bark-400);
+    transition: background var(--t-fast);
+  }
+  .demo-pill.on .led {
+    background: var(--open);
+    box-shadow: 0 0 0 2px var(--open-50);
+    animation: blink 1.6s infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  /* Spot preview card (peeks up when pin tapped) */
+  .preview {
+    position: absolute; left: 14px; right: 14px; bottom: 14px;
+    background: #fff;
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(46,28,10,0.06);
+    transform: translateY(120%);
+    opacity: 0;
+    transition: transform var(--t-slow), opacity var(--t-med);
+    cursor: pointer;
+  }
+  .preview.is-visible { transform: translateY(0); opacity: 1; }
+  .preview-row { display: flex; align-items: center; gap: 12px; }
+  .preview-thumb {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    flex: 0 0 auto;
+    background: linear-gradient(135deg, var(--cream-200), var(--cream-300));
+    display: grid; place-items: center;
+    color: var(--bark-700);
+    font-family: "Instrument Serif", serif;
+    font-size: 26px;
+  }
+  .preview-info { flex: 1; min-width: 0; }
+  .preview-info h4 {
+    font-size: 16px; font-weight: 600; color: var(--bark-900);
+    letter-spacing: -0.01em; line-height: 1.2;
+  }
+  .preview-info p {
+    font-size: 12px; color: var(--muted);
+    margin-top: 3px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .preview-info p .dot { width: 3px; height: 3px; border-radius: 99px; background: var(--bark-300); }
+  .occ-pill {
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .occ-pill.open { background: var(--open-50); color: #3a5d39; }
+  .occ-pill.fill { background: var(--fill-50); color: #7a5510; }
+  .occ-pill.full { background: var(--full-50); color: #803128; }
+
+  /* List view */
+  .list {
+    padding: 4px 22px 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .list-row {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex; gap: 14px; align-items: center;
+    cursor: pointer;
+    transition: transform var(--t-fast), border-color var(--t-fast);
+  }
+  .list-row:active { transform: scale(0.99); }
+  .list-row:hover { border-color: var(--bark-300); }
+  .list-thumb {
+    width: 56px; height: 56px; flex: 0 0 auto;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--cream-200), var(--cream-300));
+    display: grid; place-items: center;
+    color: var(--bark-700);
+    font-family: "Instrument Serif", serif;
+    font-size: 24px;
+  }
+  .list-row .body { flex: 1; min-width: 0; }
+  .list-row h4 {
+    font-size: 15px; font-weight: 600; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .list-row .meta {
+    font-size: 12px; color: var(--muted);
+    margin-top: 2px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .list-row .meta .dot { width: 3px; height: 3px; border-radius: 99px; background: var(--bark-300); }
+  .list-row .occ-bar {
+    margin-top: 8px;
+    height: 4px;
+    background: var(--cream-100);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .list-row .occ-bar i {
+    display: block; height: 100%;
+    border-radius: 99px;
+    transition: width var(--t-slow);
+  }
+  .list-row .occ-bar i.open { background: var(--open); }
+  .list-row .occ-bar i.fill { background: var(--fill); }
+  .list-row .occ-bar i.full { background: var(--full); }
+
+  /* Bottom nav */
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 251, 240, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--line);
+    padding: 8px 20px 22px;
+    display: flex; justify-content: space-between;
+    z-index: 30;
+  }
+  .tab {
+    flex: 1;
+    background: transparent; border: none;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px;
+    color: var(--bark-500);
+    font-family: inherit; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: color var(--t-fast);
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab.is-active { color: var(--bark-900); }
+  .tab .icon-wrap {
+    position: relative;
+    display: grid; place-items: center;
+    transition: transform var(--t-fast);
+  }
+  .tab.is-active .icon-wrap::before {
+    content: "";
+    position: absolute; inset: -6px -10px;
+    background: var(--cream-200);
+    border-radius: 99px;
+    z-index: -1;
+  }
+  .tab:active .icon-wrap { transform: scale(0.92); }
+
+  /* Detail screen */
+  .nav-back {
+    position: absolute; top: 60px; left: 18px;
+    width: 38px; height: 38px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(46,28,10,0.06);
+    display: grid; place-items: center;
+    cursor: pointer; z-index: 20;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--t-fast);
+  }
+  .nav-back:active { transform: scale(0.94); }
+  .nav-actions {
+    position: absolute; top: 60px; right: 18px;
+    display: flex; gap: 8px; z-index: 20;
+  }
+  .nav-icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(46,28,10,0.06);
+    display: grid; place-items: center;
+    cursor: pointer;
+    color: var(--bark-800);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--t-fast), color var(--t-fast);
+  }
+  .nav-icon-btn.is-saved { color: var(--full); }
+  .nav-icon-btn:active { transform: scale(0.94); }
+
+  .hero {
+    position: relative;
+    height: 280px;
+    background: linear-gradient(135deg, #d4c4a3 0%, #b89a72 60%, #91714a 100%);
+    overflow: hidden;
+    display: grid; place-items: center;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(80% 60% at 50% 100%, rgba(0,0,0,0.25), transparent),
+      radial-gradient(60% 50% at 30% 30%, rgba(255,255,255,0.18), transparent);
+  }
+  .hero::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='2'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.5; mix-blend-mode: overlay;
+  }
+  .hero svg.bldg {
+    width: 60%; height: 60%; opacity: 0.85;
+  }
+  .hero .badge {
+    position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(6px);
+    padding: 6px 12px; border-radius: 99px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--bark-800);
+    border: 1px solid rgba(46,28,10,0.06);
+  }
+  .hero .occ-overlay {
+    position: absolute; left: 14px; bottom: 14px;
+    background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
+    padding: 10px 14px; border-radius: 16px;
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid rgba(46,28,10,0.06);
+    box-shadow: var(--shadow-sm);
+  }
+  .hero .occ-overlay .ring {
+    width: 36px; height: 36px;
+    position: relative;
+  }
+  .hero .occ-overlay .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .hero .occ-overlay .ring .pct {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 11px; font-weight: 700; color: var(--bark-900);
+  }
+  .hero .occ-overlay .label {
+    font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .hero .occ-overlay .value {
+    font-size: 14px; font-weight: 600; color: var(--bark-900);
+  }
+
+  .detail-body { padding: 22px; }
+  .detail-title {
+    font-family: "Instrument Serif", serif;
+    font-size: 32px; line-height: 1.05;
+    color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .detail-subtitle {
+    font-size: 13px; color: var(--muted); margin-top: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .detail-subtitle .dot { width: 3px; height: 3px; border-radius: 99px; background: var(--bark-300); }
+
+  .stat-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 20px;
+    background: var(--cream-100);
+    border-radius: 18px;
+    padding: 14px;
+  }
+  .stat {
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 0 6px;
+    text-align: center;
+  }
+  .stat + .stat { border-left: 1px solid var(--line); }
+  .stat .v { font-size: 17px; font-weight: 600; color: var(--bark-900); }
+  .stat .v small { font-size: 11px; font-weight: 500; color: var(--muted); }
+  .stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+
+  .section-h {
+    margin: 24px 0 12px;
+    font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted);
+    font-weight: 600;
+  }
+  .amenities {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .amen {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 13px;
+    color: var(--bark-800);
+  }
+  .amen .ic {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    background: var(--cream-100);
+    display: grid; place-items: center; color: var(--bark-700);
+  }
+  .amen.is-off {
+    color: var(--bark-400);
+    background: var(--cream-50);
+  }
+  .amen.is-off .ic { color: var(--bark-300); background: var(--cream-100); }
+
+  .hours-row {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hours-row .ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--cream-100); display: grid; place-items: center;
+    color: var(--bark-700);
+  }
+  .hours-row .body { flex: 1; }
+  .hours-row .body .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .hours-row .body .value { font-size: 14px; color: var(--bark-900); font-weight: 500; margin-top: 2px; }
+  .hours-row .open-now { color: var(--open); font-weight: 600; font-size: 12px; }
+
+  /* Big CTA */
+  .cta-bar {
+    position: sticky; bottom: 0;
+    background: linear-gradient(180deg, transparent, var(--cream-50) 30%);
+    padding: 16px 22px 28px;
+    margin: 0 -22px;
+  }
+  .cta {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bark-900);
+    color: var(--cream-50);
+    border: none;
+    border-radius: 18px;
+    padding: 16px 18px 16px 22px;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: transform var(--t-fast);
+    box-shadow: 0 8px 24px -10px rgba(46,28,10,0.4);
+  }
+  .cta:active { transform: scale(0.99); }
+  .cta .arrow {
+    width: 30px; height: 30px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.12);
+    display: grid; place-items: center;
+  }
+  .cta--ghost {
+    background: transparent;
+    color: var(--bark-900);
+    border: 1px solid var(--bark-900);
+    box-shadow: none;
+  }
+  .cta--ghost .arrow { background: var(--cream-200); }
+
+  /* Booking screen */
+  .booking-head {
+    padding: 60px 22px 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .booking-head h1 {
+    font-family: "Instrument Serif", serif;
+    font-size: 26px; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .step-indicator {
+    display: flex; gap: 6px; align-items: center;
+    margin: 18px 22px 4px;
+  }
+  .step {
+    flex: 1;
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--cream-100);
+    border: 1px solid transparent;
+  }
+  .step .n {
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--bark-500);
+    font-weight: 600;
+  }
+  .step .t {
+    font-size: 13px; font-weight: 600; color: var(--bark-700);
+    letter-spacing: -0.01em;
+  }
+  .step.is-active {
+    background: var(--bark-900);
+    border-color: var(--bark-900);
+  }
+  .step.is-active .n { color: rgba(247,241,225,0.6); }
+  .step.is-active .t { color: var(--cream-50); }
+  .step.is-done {
+    background: var(--open-50);
+    border-color: rgba(111,155,108,0.3);
+  }
+  .step.is-done .n { color: rgba(58,93,57,0.7); }
+  .step.is-done .t { color: #3a5d39; }
+  .step.is-done .t::before { content: "✓ "; }
+
+  .booking-body {
+    padding: 18px 22px 0;
+  }
+  .booking-prompt {
+    font-family: "Instrument Serif", serif;
+    font-size: 24px; color: var(--bark-900);
+    letter-spacing: -0.01em; margin-bottom: 14px;
+    line-height: 1.15;
+  }
+  .booking-prompt em { font-style: italic; color: var(--bark-700); }
+
+  .room-card {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 14px;
+    transition: border-color var(--t-fast), transform var(--t-fast);
+  }
+  .room-card:active { transform: scale(0.99); }
+  .room-card:hover { border-color: var(--bark-300); }
+  .room-card.is-selected {
+    border-color: var(--bark-900);
+    background: var(--cream-100);
+  }
+  .room-card .ill {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #e9dcb6, #c6ad7c);
+    display: grid; place-items: center;
+    color: #fff;
+  }
+  .room-card .ill svg { width: 28px; height: 28px; }
+  .room-card .body { flex: 1; }
+  .room-card .body h5 {
+    font-size: 15px; font-weight: 600; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .room-card .body p {
+    font-size: 12px; color: var(--muted);
+    margin-top: 2px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .room-card .body .dot { width: 3px; height: 3px; border-radius: 99px; background: var(--bark-300); }
+  .room-card .check {
+    width: 22px; height: 22px;
+    border-radius: 99px;
+    border: 1.5px solid var(--line);
+    display: grid; place-items: center;
+    color: transparent;
+    transition: all var(--t-fast);
+  }
+  .room-card.is-selected .check {
+    border-color: var(--bark-900);
+    background: var(--bark-900);
+    color: var(--cream-50);
+  }
+
+  .time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .time-slot {
+    padding: 14px 6px;
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    color: var(--bark-800);
+    cursor: pointer;
+    text-align: center;
+    transition: all var(--t-fast);
+  }
+  .time-slot:disabled {
+    background: var(--cream-100); color: var(--bark-400);
+    cursor: not-allowed; opacity: 0.6;
+  }
+  .time-slot:hover:not(:disabled) { border-color: var(--bark-300); }
+  .time-slot:active:not(:disabled) { transform: scale(0.98); }
+  .time-slot.is-selected {
+    border-color: var(--bark-900);
+    background: var(--bark-900);
+    color: var(--cream-50);
+  }
+
+  .duration-row {
+    display: flex; gap: 8px;
+    margin-top: 6px;
+  }
+  .dur {
+    flex: 1;
+    padding: 12px 6px;
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    color: var(--bark-700); cursor: pointer;
+    text-align: center;
+    transition: all var(--t-fast);
+  }
+  .dur.is-selected {
+    border-color: var(--bark-900);
+    background: var(--bark-900);
+    color: var(--cream-50);
+  }
+
+  .summary {
+    margin-top: 20px;
+    background: var(--cream-100);
+    border-radius: 18px;
+    padding: 16px;
+  }
+  .summary .row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+  .summary .row + .row { border-top: 1px dashed var(--line); }
+  .summary .label { color: var(--muted); }
+  .summary .value { color: var(--bark-900); font-weight: 600; }
+  .summary .row.total .value { color: var(--bark-900); font-size: 14px; }
+
+  /* Confirmation screen */
+  .conf {
+    position: relative;
+    padding: 100px 22px 0;
+    text-align: center;
+    height: 100%;
+    overflow: hidden;
+  }
+  .conf::before {
+    content: "";
+    position: absolute; top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(217,230,212,0.6) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .check-circle {
+    position: relative;
+    margin: 0 auto 22px;
+    width: 100px; height: 100px;
+    border-radius: 99px;
+    background: var(--open);
+    display: grid; place-items: center;
+    box-shadow: 0 12px 32px -8px rgba(111,155,108,0.5);
+    z-index: 1;
+  }
+  .check-circle::before {
+    content: "";
+    position: absolute; inset: -10px;
+    border-radius: 99px;
+    border: 2px solid var(--open-50);
+    animation: ringPulse 2s ease-out infinite;
+  }
+  .check-circle::after {
+    content: "";
+    position: absolute; inset: -22px;
+    border-radius: 99px;
+    border: 1px solid var(--open-50);
+    opacity: 0.6;
+    animation: ringPulse 2s ease-out infinite 0.5s;
+  }
+  @keyframes ringPulse {
+    0%   { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  .check-svg { width: 48px; height: 48px; color: #fff; }
+  .check-svg path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: drawCheck 0.6s ease-out 0.2s forwards;
+  }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+  .conf h1 {
+    font-family: "Instrument Serif", serif;
+    font-size: 36px; color: var(--bark-900);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    position: relative;
+    animation: rise 0.6s ease-out 0.4s both;
+  }
+  .conf h1 em { font-style: italic; color: var(--bark-700); }
+  .conf > p {
+    font-size: 14px; color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.5;
+    position: relative;
+    animation: rise 0.6s ease-out 0.55s both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .ticket {
+    margin-top: 28px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 18px;
+    text-align: left;
+    position: relative;
+    box-shadow: var(--shadow-md);
+    animation: rise 0.7s ease-out 0.7s both;
+  }
+  .ticket::before, .ticket::after {
+    content: "";
+    position: absolute; top: 50%;
+    width: 22px; height: 22px;
+    border-radius: 99px;
+    background: var(--cream-50);
+    border: 1px solid var(--line);
+    transform: translateY(-50%);
+  }
+  .ticket::before { left: -12px; }
+  .ticket::after { right: -12px; }
+
+  .ticket .row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; }
+  .ticket .row + .row { border-top: 1px dashed var(--line); }
+  .ticket .l { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .ticket .v { font-size: 14px; color: var(--bark-900); font-weight: 600; margin-top: 2px; letter-spacing: -0.01em; text-align: right; }
+  .ticket .v.big { font-size: 16px; font-family: "Instrument Serif", serif; font-weight: 400; }
+
+  .conf-actions {
+    margin-top: 22px;
+    display: flex; flex-direction: column; gap: 10px;
+    animation: rise 0.7s ease-out 0.85s both;
+  }
+
+  /* Confirm row at bottom of step 3 */
+  .review-room {
+    background: #fff; border-radius: 18px; padding: 16px;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .review-room .ill {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, #e9dcb6, #c6ad7c);
+    display: grid; place-items: center;
+    color: #fff;
+  }
+  .review-room h5 { font-size: 15px; font-weight: 600; color: var(--bark-900); }
+  .review-room p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Generic page heading */
+  .page-head {
+    padding: 60px 22px 6px;
+  }
+  .page-head h1 {
+    font-family: "Instrument Serif", serif;
+    font-size: 32px; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .page-head p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Bookings tab */
+  .booking-card {
+    margin: 0 22px 12px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    display: flex; gap: 14px;
+    position: relative; overflow: hidden;
+  }
+  .booking-card::before {
+    content: ""; position: absolute; top: 0; left: 0; bottom: 0;
+    width: 4px;
+    background: var(--bark-900);
+  }
+  .booking-card.upcoming::before { background: var(--open); }
+  .booking-card.past::before { background: var(--bark-300); }
+  .booking-card .ill {
+    width: 60px; height: 60px;
+    border-radius: 14px; flex: 0 0 auto;
+    background: linear-gradient(135deg, var(--cream-200), var(--cream-300));
+    display: grid; place-items: center;
+    color: var(--bark-700);
+    font-family: "Instrument Serif", serif;
+    font-size: 24px;
+  }
+  .booking-card.past .ill {
+    background: var(--cream-100);
+    color: var(--bark-400);
+  }
+  .booking-card .body { flex: 1; min-width: 0; }
+  .booking-card h4 {
+    font-size: 15px; font-weight: 600; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .booking-card .when {
+    font-size: 12px; color: var(--muted); margin-top: 2px;
+  }
+  .booking-card .room {
+    font-size: 12px; color: var(--bark-700); margin-top: 6px;
+    background: var(--cream-100);
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 99px;
+  }
+  .booking-card.upcoming .countdown {
+    margin-top: 6px;
+    font-size: 11px; color: var(--open); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  /* Saved tab */
+  .saved-grid {
+    padding: 0 22px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .saved-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .saved-card .img {
+    height: 90px;
+    background: linear-gradient(135deg, var(--cream-200), var(--cream-300));
+    display: grid; place-items: center;
+    color: var(--bark-700);
+    font-family: "Instrument Serif", serif;
+    font-size: 28px;
+  }
+  .saved-card .body { padding: 10px 12px 12px; }
+  .saved-card h5 { font-size: 13px; font-weight: 600; color: var(--bark-900); letter-spacing: -0.01em; }
+  .saved-card .meta {
+    font-size: 11px; color: var(--muted); margin-top: 3px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .saved-card .meta i {
+    width: 6px; height: 6px; border-radius: 99px;
+  }
+  .saved-card .meta i.open { background: var(--open); }
+  .saved-card .meta i.fill { background: var(--fill); }
+  .saved-card .meta i.full { background: var(--full); }
+
+  .empty-state {
+    text-align: center; padding: 40px 22px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .empty-state h3 {
+    font-family: "Instrument Serif", serif;
+    font-size: 20px; color: var(--bark-700);
+    margin-bottom: 6px;
+  }
+
+  /* Profile tab */
+  .profile-card {
+    margin: 0 22px;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .avatar {
+    width: 64px; height: 64px;
+    border-radius: 99px;
+    background: linear-gradient(135deg, var(--bark-700), var(--bark-900));
+    color: var(--cream-50);
+    display: grid; place-items: center;
+    font-family: "Instrument Serif", serif;
+    font-size: 28px;
+    box-shadow: var(--shadow-md);
+  }
+  .profile-card h2 {
+    font-family: "Instrument Serif", serif;
+    font-size: 22px; color: var(--bark-900);
+    letter-spacing: -0.01em;
+  }
+  .profile-card p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .profile-card p span { color: var(--bark-700); }
+
+  .profile-stats {
+    margin: 16px 22px 0;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .pstat {
+    background: var(--cream-100);
+    padding: 14px 12px;
+    border-radius: 14px;
+    text-align: center;
+  }
+  .pstat .v { font-family: "Instrument Serif", serif; font-size: 24px; color: var(--bark-900); }
+  .pstat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-top: 2px; }
+
+  .menu {
+    margin: 16px 22px 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .menu-row {
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    transition: background var(--t-fast);
+  }
+  .menu-row + .menu-row { border-top: 1px solid var(--line); }
+  .menu-row:hover { background: var(--cream-50); }
+  .menu-row .ic {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: var(--cream-100);
+    display: grid; place-items: center; color: var(--bark-700);
+  }
+  .menu-row .body { flex: 1; }
+  .menu-row .body h5 { font-size: 14px; font-weight: 500; color: var(--bark-900); }
+  .menu-row .body p { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .menu-row .chev { color: var(--bark-400); }
+  .menu-row .switch {
+    width: 38px; height: 22px;
+    background: var(--cream-200);
+    border-radius: 99px;
+    position: relative;
+    transition: background var(--t-fast);
+  }
+  .menu-row .switch::after {
+    content: "";
+    position: absolute; top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    border-radius: 99px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--t-fast);
+  }
+  .menu-row.is-on .switch { background: var(--open); }
+  .menu-row.is-on .switch::after { transform: translateX(16px); }
+
+  /* Toast */
+  .toast {
+    position: absolute;
+    bottom: 100px; left: 50%; transform: translate(-50%, 20px);
+    background: var(--bark-900); color: var(--cream-50);
+    padding: 10px 16px;
+    border-radius: 99px;
+    font-size: 13px; font-weight: 500;
+    z-index: 60;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform var(--t-med), opacity var(--t-med);
+  }
+  .toast.is-visible { transform: translate(-50%, 0); opacity: 1; }
+
+  /* Share sheet */
+  .sheet-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(20,12,4,0.4);
+    z-index: 70;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--t-med);
+  }
+  .sheet-backdrop.is-visible { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    background: var(--cream-50);
+    border-radius: 28px 28px 0 0;
+    padding: 12px 22px 28px;
+    z-index: 71;
+    transform: translateY(100%);
+    transition: transform var(--t-slow);
+  }
+  .sheet.is-visible { transform: translateY(0); }
+  .sheet .grabber {
+    width: 36px; height: 4px; border-radius: 99px;
+    background: var(--cream-300);
+    margin: 0 auto 14px;
+  }
+  .sheet h3 {
+    font-family: "Instrument Serif", serif;
+    font-size: 22px; color: var(--bark-900);
+    text-align: center; margin-bottom: 4px;
+  }
+  .sheet p {
+    text-align: center; font-size: 12px; color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .share-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .share-opt {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer;
+    transition: transform var(--t-fast);
+  }
+  .share-opt:active { transform: scale(0.95); }
+  .share-opt .ic {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center;
+  }
+  .share-opt .ic.imsg { background: linear-gradient(135deg, #2eba2c, #44dc41); color: #fff; }
+  .share-opt .ic.copy { background: var(--cream-100); color: var(--bark-800); }
+  .share-opt .ic.air  { background: linear-gradient(135deg, #2196f3, #4fc3f7); color: #fff; }
+  .share-opt .ic.qr   { background: var(--bark-900); color: var(--cream-50); }
+  .share-opt span { font-size: 11px; color: var(--bark-800); font-weight: 500; }
+
+  .sheet-cancel {
+    width: 100%;
+    background: var(--cream-100);
+    border: none;
+    padding: 14px;
+    border-radius: 14px;
+    font-family: inherit; font-size: 14px; font-weight: 500;
+    color: var(--bark-800); cursor: pointer;
+  }
+
+  /* List view header */
+  .list-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 22px 6px;
+  }
+  .list-head h3 {
+    font-family: "Instrument Serif", serif;
+    font-size: 18px; color: var(--bark-900);
+  }
+  .list-head .count {
+    font-size: 12px; color: var(--muted);
+  }
+  .list-sort {
+    display: inline-flex; gap: 4px; align-items: center;
+    font-size: 11px; color: var(--bark-700); font-weight: 500;
+    background: var(--cream-100);
+    padding: 4px 10px; border-radius: 99px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  /* Onboarding overlay */
+  .onb {
+    position: absolute; inset: 0;
+    background: var(--cream-50);
+    z-index: 100;
+    display: flex; flex-direction: column;
+    padding: 80px 30px 30px;
+    transition: opacity var(--t-slow), transform var(--t-slow);
+  }
+  .onb.dismissed {
+    opacity: 0; transform: scale(1.02); pointer-events: none;
+  }
+  .onb-mark {
+    align-self: center;
+    font-family: "Instrument Serif", serif;
+    font-style: italic; font-size: 36px;
+    color: var(--bark-900);
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .onb-mark::after {
+    content: ".";
+    color: var(--open);
+  }
+  .onb-illus {
+    flex: 1;
+    display: grid; place-items: center;
+    margin: 20px 0;
+  }
+  .onb-illus svg { width: 100%; height: 100%; max-height: 320px; }
+  .onb h1 {
+    font-family: "Instrument Serif", serif;
+    font-size: 36px; color: var(--bark-900);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-align: center;
+  }
+  .onb h1 em { font-style: italic; color: var(--bark-700); }
+  .onb p {
+    font-size: 14px; color: var(--muted);
+    margin-top: 12px; text-align: center;
+    line-height: 1.5;
+  }
+  .onb-cta {
+    margin-top: 24px;
+    background: var(--bark-900);
+    color: var(--cream-50);
+    padding: 16px;
+    border: none; border-radius: 18px;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: transform var(--t-fast);
+  }
+  .onb-cta:active { transform: scale(0.99); }
+  .onb-skip {
+    margin-top: 8px;
+    background: transparent; border: none;
+    font-family: inherit; font-size: 13px;
+    color: var(--bark-500);
+    cursor: pointer;
+  }
+
+  /* Subtle animations on first render */
+  .screen.is-active .map-header > * { animation: rise 0.6s ease-out both; }
+  .screen.is-active .map-header > :nth-child(1) { animation-delay: 0.05s; }
+  .screen.is-active .map-header > :nth-child(2) { animation-delay: 0.1s; }
+  .screen.is-active .map-header > :nth-child(3) { animation-delay: 0.15s; }
+  .screen.is-active .chips { animation: rise 0.6s ease-out 0.2s both; }
+  .screen.is-active .map-wrap { animation: rise 0.7s ease-out 0.25s both; }
+
+  /* Visibility helpers */
+  .hidden { display: none !important; }
+
+  @media (max-width: 720px) {
+    .phone, .phone__screen { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="desktop-tag">
+    <em>StudySpot</em> — VT Study Space Finder
+  </div>
+  <div class="desktop-meta">
+    <span>Class</span>  CS 3724 · Spring 2026<br/>
+    <span>Team</span>  User First (Group 8)<br/>
+    <span>Phase</span>  03 · Interactive Prototype
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone__screen">
+
+      <!-- Status bar (shared across all screens) -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <div class="right">
+          <!-- signal -->
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.6"/><rect x="4.5" y="5" width="3" height="6" rx="0.6"/><rect x="9" y="3" width="3" height="8" rx="0.6"/><rect x="13.5" y="0.5" width="3" height="10.5" rx="0.6"/></svg>
+          <!-- wifi -->
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2C5.4 2 3 3 1.2 4.7c-.3.3-.3.7 0 1l1 1c.3.3.7.3 1 0 1.3-1.3 3-2 4.8-2s3.5.7 4.8 2c.3.3.7.3 1 0l1-1c.3-.3.3-.7 0-1C13 3 10.6 2 8 2zm0 4C6.7 6 5.5 6.5 4.6 7.4c-.3.3-.3.7 0 1l1 1c.3.3.7.3 1 0 .4-.4.9-.6 1.4-.6s1 .2 1.4.6c.3.3.7.3 1 0l1-1c.3-.3.3-.7 0-1A4.7 4.7 0 0 0 8 6zm0 4c-.6 0-1.1.5-1.1 1.1S7.4 11 8 11s1.1-.5 1.1-1.1S8.6 10 8 10z"/></svg>
+          <!-- battery -->
+          <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x="0.5" y="0.5" width="22" height="12" rx="3" stroke="currentColor" opacity="0.6"/><rect x="2" y="2" width="19" height="9" rx="1.5" fill="currentColor"/><rect x="24" y="4" width="2" height="5" rx="1" fill="currentColor" opacity="0.6"/></svg>
+        </div>
+      </div>
+
+      <!-- Onboarding -->
+      <div class="onb" id="onb">
+        <div class="onb-mark">studyspot</div>
+        <div class="onb-illus">
+          <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="og1" cx="50%" cy="40%">
+                <stop offset="0" stop-color="#f7f1e1"/>
+                <stop offset="1" stop-color="#ddd1b2"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="160" cy="240" rx="130" ry="14" fill="rgba(46,28,10,0.08)"/>
+            <!-- desk -->
+            <rect x="40" y="180" width="240" height="20" rx="4" fill="#6b4f37"/>
+            <rect x="40" y="200" width="240" height="44" rx="6" fill="#3a2614"/>
+            <!-- laptop -->
+            <rect x="120" y="120" width="80" height="56" rx="4" fill="#2a1b0d"/>
+            <rect x="124" y="124" width="72" height="48" rx="2" fill="url(#og1)"/>
+            <rect x="128" y="130" width="40" height="3" rx="1.5" fill="#8a6e54"/>
+            <rect x="128" y="138" width="50" height="3" rx="1.5" fill="#8a6e54" opacity="0.7"/>
+            <rect x="128" y="146" width="34" height="3" rx="1.5" fill="#8a6e54" opacity="0.5"/>
+            <rect x="128" y="158" width="60" height="8" rx="2" fill="#6f9b6c"/>
+            <!-- mug -->
+            <ellipse cx="80" cy="172" rx="14" ry="4" fill="#3a2614" opacity="0.3"/>
+            <rect x="68" y="146" width="24" height="30" rx="3" fill="#c45a4a"/>
+            <path d="M92 154 q 8 2 8 8 t -8 8" stroke="#c45a4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <ellipse cx="80" cy="146" rx="12" ry="3" fill="#fbf8f0"/>
+            <!-- plant -->
+            <rect x="220" y="156" width="32" height="20" rx="3" fill="#6b4f37"/>
+            <path d="M236 156 c -8 -10 -16 -16 -10 -32 c 8 6 12 16 10 32 z" fill="#6f9b6c"/>
+            <path d="M236 156 c 8 -10 14 -14 18 -28 c -2 14 -10 22 -18 28 z" fill="#8ab088"/>
+            <path d="M236 156 c -2 -16 4 -28 14 -34 c -2 18 -6 28 -14 34 z" fill="#7ba87a"/>
+            <!-- pin -->
+            <g transform="translate(60,80)">
+              <circle r="20" fill="#6f9b6c" opacity="0.2"/>
+              <circle r="12" fill="#6f9b6c"/>
+              <circle r="6" fill="#fff"/>
+            </g>
+            <g transform="translate(260,72)">
+              <circle r="14" fill="#d39a3b" opacity="0.2"/>
+              <circle r="9" fill="#d39a3b"/>
+              <circle r="4" fill="#fff"/>
+            </g>
+          </svg>
+        </div>
+        <h1>find a quiet seat,<br/><em>before you walk over.</em></h1>
+        <p>Real-time occupancy, your favorite filters, and a three-tap room booking — across the entire VT campus.</p>
+        <button class="onb-cta" id="onbStart">Find a study spot</button>
+        <button class="onb-skip" id="onbSkip">Maybe later</button>
+      </div>
+
+      <!-- Screen stack -->
+      <div class="stack" id="stack">
+
+        <!-- MAP / LIST SCREEN -->
+        <section class="screen is-active" data-screen="map">
+          <div class="scroll-area">
+
+            <div class="map-header">
+              <div class="greeting">good afternoon, <em>Priya</em></div>
+              <div class="sub-greeting"><b>7 spots</b> within 8 minutes · partly cloudy, 64°</div>
+              <div class="search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input id="searchInput" type="text" placeholder="Search buildings, rooms, or amenities…" />
+                <span class="kbd">⌘K</span>
+              </div>
+            </div>
+
+            <div class="chips" id="chips">
+              <!-- populated by JS -->
+            </div>
+
+            <!-- MAP VIEW -->
+            <div class="map-wrap" id="mapWrap" data-mode="map">
+              <svg class="map-svg" viewBox="0 0 375 420" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <pattern id="paper" width="60" height="60" patternUnits="userSpaceOnUse">
+                    <rect width="60" height="60" fill="#ece2c3"/>
+                    <circle cx="3" cy="3" r="0.6" fill="#c5af93" opacity="0.4"/>
+                    <circle cx="33" cy="17" r="0.4" fill="#c5af93" opacity="0.3"/>
+                    <circle cx="48" cy="42" r="0.5" fill="#c5af93" opacity="0.4"/>
+                    <circle cx="14" cy="48" r="0.4" fill="#c5af93" opacity="0.3"/>
+                  </pattern>
+                  <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#a3b87f"/>
+                    <stop offset="1" stop-color="#8aa66a"/>
+                  </linearGradient>
+                  <linearGradient id="bldg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#f7f1e1"/>
+                    <stop offset="1" stop-color="#dcc99e"/>
+                  </linearGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#paper)"/>
+
+                <!-- Streets (subtle) -->
+                <g stroke="#c5af93" stroke-width="22" fill="none" opacity="0.35" stroke-linecap="round">
+                  <path d="M -10 90 Q 100 80 200 110 T 380 95"/>
+                  <path d="M -10 320 Q 80 310 180 330 T 380 320"/>
+                  <path d="M 80 -10 Q 90 130 110 220 T 130 430"/>
+                  <path d="M 270 -10 Q 260 120 280 220 T 290 430"/>
+                </g>
+                <g stroke="#fbf8f0" stroke-width="14" fill="none" opacity="0.85" stroke-linecap="round">
+                  <path d="M -10 90 Q 100 80 200 110 T 380 95"/>
+                  <path d="M -10 320 Q 80 310 180 330 T 380 320"/>
+                  <path d="M 80 -10 Q 90 130 110 220 T 130 430"/>
+                  <path d="M 270 -10 Q 260 120 280 220 T 290 430"/>
+                </g>
+                <g stroke="#c5af93" stroke-width="1" fill="none" stroke-dasharray="4 4" opacity="0.7">
+                  <path d="M -10 90 Q 100 80 200 110 T 380 95"/>
+                  <path d="M -10 320 Q 80 310 180 330 T 380 320"/>
+                  <path d="M 80 -10 Q 90 130 110 220 T 130 430"/>
+                  <path d="M 270 -10 Q 260 120 280 220 T 290 430"/>
+                </g>
+
+                <!-- Drillfield (large oval lawn in center) -->
+                <ellipse cx="190" cy="210" rx="80" ry="48" fill="url(#grass)" opacity="0.85"/>
+                <ellipse cx="190" cy="210" rx="80" ry="48" fill="none" stroke="#7a9659" stroke-width="1.4" opacity="0.4" stroke-dasharray="2 3"/>
+                <text x="190" y="214" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="14" fill="#3d5a2a" opacity="0.9">Drillfield</text>
+
+                <!-- Trees -->
+                <g fill="#7a9659" opacity="0.7">
+                  <circle cx="40" cy="180" r="6"/>
+                  <circle cx="50" cy="200" r="5"/>
+                  <circle cx="335" cy="180" r="6"/>
+                  <circle cx="320" cy="200" r="5"/>
+                  <circle cx="50" cy="40" r="5"/>
+                  <circle cx="320" cy="50" r="6"/>
+                  <circle cx="180" cy="385" r="5"/>
+                  <circle cx="220" cy="395" r="5"/>
+                </g>
+
+                <!-- Buildings (rounded rects) -->
+                <!-- Squires (top center) -->
+                <g>
+                  <rect x="148" y="44" width="92" height="50" rx="6" fill="url(#bldg)" stroke="#a78c70" stroke-width="1"/>
+                  <rect x="156" y="52" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="166" y="52" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="176" y="52" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="156" y="62" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="166" y="62" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="176" y="62" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                </g>
+                <!-- Newman Library (top right) -->
+                <g>
+                  <rect x="265" y="58" width="68" height="74" rx="6" fill="url(#bldg)" stroke="#a78c70" stroke-width="1"/>
+                  <rect x="272" y="66" width="54" height="10" rx="2" fill="#a78c70" opacity="0.3"/>
+                  <rect x="272" y="80" width="54" height="10" rx="2" fill="#a78c70" opacity="0.3"/>
+                  <rect x="272" y="94" width="54" height="10" rx="2" fill="#a78c70" opacity="0.3"/>
+                </g>
+                <!-- Surge (top left) -->
+                <g>
+                  <rect x="32" y="60" width="62" height="58" rx="5" fill="url(#bldg)" stroke="#a78c70" stroke-width="1"/>
+                  <rect x="40" y="68" width="46" height="4" fill="#a78c70" opacity="0.35"/>
+                  <rect x="40" y="78" width="46" height="4" fill="#a78c70" opacity="0.35"/>
+                  <rect x="40" y="88" width="46" height="4" fill="#a78c70" opacity="0.35"/>
+                  <rect x="40" y="98" width="46" height="4" fill="#a78c70" opacity="0.35"/>
+                </g>
+                <!-- Goodwin (left middle) -->
+                <g>
+                  <rect x="36" y="240" width="64" height="68" rx="5" fill="url(#bldg)" stroke="#a78c70" stroke-width="1"/>
+                  <path d="M 36 270 L 100 270" stroke="#a78c70" stroke-width="0.8" opacity="0.4"/>
+                  <path d="M 68 240 L 68 308" stroke="#a78c70" stroke-width="0.8" opacity="0.4"/>
+                </g>
+                <!-- Torgersen (right middle) -->
+                <g>
+                  <rect x="280" y="240" width="62" height="74" rx="5" fill="url(#bldg)" stroke="#a78c70" stroke-width="1"/>
+                  <path d="M 280 268 L 342 268" stroke="#a78c70" stroke-width="0.8" opacity="0.4"/>
+                  <path d="M 280 290 L 342 290" stroke="#a78c70" stroke-width="0.8" opacity="0.4"/>
+                  <!-- Bridge to Newman -->
+                  <path d="M 280 250 L 333 130" stroke="#a78c70" stroke-width="3" fill="none" opacity="0.4" stroke-linecap="round"/>
+                </g>
+                <!-- McBryde (bottom center) -->
+                <g>
+                  <rect x="130" y="328" width="120" height="56" rx="6" fill="url(#bldg)" stroke="#a78c70" stroke-width="1"/>
+                  <rect x="180" y="328" width="20" height="20" fill="#a78c70" opacity="0.3"/>
+                  <rect x="138" y="338" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="148" y="338" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="158" y="338" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="208" y="338" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="218" y="338" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                  <rect x="228" y="338" width="6" height="6" fill="#a78c70" opacity="0.4"/>
+                </g>
+
+                <!-- "You are here" indicator -->
+                <g id="youAreHere">
+                  <circle cx="195" cy="356" r="14" fill="rgba(46,28,10,0.15)" />
+                  <circle cx="195" cy="356" r="7" fill="#3a2614" />
+                  <circle cx="195" cy="356" r="3" fill="#fbf8f0" />
+                </g>
+              </svg>
+
+              <!-- Pin overlay (positioned via percent) -->
+              <div class="pin-layer" id="pinLayer"></div>
+
+              <div class="legend">
+                <span><i class="o"></i>Open</span>
+                <span><i class="f"></i>Filling Up</span>
+                <span><i class="x"></i>Full</span>
+              </div>
+
+              <div class="toggle">
+                <button data-mode="map" class="is-active">Map</button>
+                <button data-mode="list">List</button>
+              </div>
+
+              <div class="demo-pill" id="demoPill" title="Toggle live demo">
+                <span class="led"></span>Live demo
+              </div>
+
+              <!-- Spot preview (peeks up when pin tapped) -->
+              <div class="preview" id="preview"></div>
+            </div>
+
+            <!-- LIST VIEW -->
+            <div class="hidden" id="listView">
+              <div class="list-head">
+                <div>
+                  <h3>Nearby spots</h3>
+                  <div class="count" id="listCount">7 spots · sorted by walk time</div>
+                </div>
+                <button class="list-sort">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+                  Sort
+                </button>
+              </div>
+              <div class="list" id="listContainer"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DETAIL SCREEN -->
+        <section class="screen" data-screen="detail">
+          <div class="scroll-area" id="detailScroll">
+            <button class="nav-back" data-nav="back" aria-label="Back">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="nav-actions">
+              <button class="nav-icon-btn" id="saveBtn" aria-label="Save">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 21-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z"/></svg>
+              </button>
+              <button class="nav-icon-btn" id="shareBtn" aria-label="Share">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+              </button>
+            </div>
+            <div id="detailBody"></div>
+          </div>
+        </section>
+
+        <!-- BOOKING SCREEN -->
+        <section class="screen" data-screen="booking">
+          <div class="scroll-area">
+            <button class="nav-back" data-nav="back-booking" aria-label="Back">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="booking-head">
+              <div></div>
+              <h1 id="bookingTitle">Book a room</h1>
+              <div></div>
+            </div>
+            <div class="step-indicator" id="stepIndicator">
+              <div class="step is-active" data-step="room"><div class="n">Step 1</div><div class="t">Room</div></div>
+              <div class="step" data-step="time"><div class="n">Step 2</div><div class="t">Time</div></div>
+              <div class="step" data-step="confirm"><div class="n">Step 3</div><div class="t">Confirm</div></div>
+            </div>
+            <div class="booking-body" id="bookingBody"></div>
+          </div>
+        </section>
+
+        <!-- CONFIRMATION SCREEN -->
+        <section class="screen" data-screen="confirmation">
+          <div class="conf" id="confBody"></div>
+        </section>
+
+        <!-- BOOKINGS TAB -->
+        <section class="screen" data-screen="bookings">
+          <div class="scroll-area">
+            <div class="page-head">
+              <h1>Your bookings</h1>
+              <p>Upcoming rooms and recent visits.</p>
+            </div>
+            <div class="section-h" style="margin: 18px 22px 10px;">Upcoming</div>
+            <div id="bookingsUpcoming"></div>
+            <div class="section-h" style="margin: 22px 22px 10px;">Past</div>
+            <div id="bookingsPast"></div>
+          </div>
+        </section>
+
+        <!-- SAVED TAB -->
+        <section class="screen" data-screen="saved">
+          <div class="scroll-area">
+            <div class="page-head">
+              <h1>Your spots</h1>
+              <p>The places you keep coming back to.</p>
+            </div>
+            <div id="savedContent"></div>
+          </div>
+        </section>
+
+        <!-- PROFILE TAB -->
+        <section class="screen" data-screen="profile">
+          <div class="scroll-area">
+            <div class="page-head">
+              <h1>Profile</h1>
+              <p>Your study habits, settings, and preferences.</p>
+            </div>
+            <div class="profile-card">
+              <div class="avatar">P</div>
+              <div>
+                <h2>Priya Patel</h2>
+                <p><span>Junior</span> · Computer Science</p>
+                <p>ppatel@vt.edu</p>
+              </div>
+            </div>
+            <div class="profile-stats">
+              <div class="pstat"><div class="v">14</div><div class="l">Bookings</div></div>
+              <div class="pstat"><div class="v">86h</div><div class="l">Studied</div></div>
+              <div class="pstat"><div class="v">4.6</div><div class="l">★ Rating</div></div>
+            </div>
+            <div class="menu" style="margin-top: 18px;">
+              <div class="menu-row" id="demoModeMenu">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg></div>
+                <div class="body"><h5>Live demo mode</h5><p>Simulate occupancy changing in real time</p></div>
+                <div class="switch"></div>
+              </div>
+              <div class="menu-row">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 0 0-4-5.7V5a2 2 0 0 0-4 0v.3A6 6 0 0 0 6 11v3.2a2 2 0 0 1-.6 1.4L4 17h5M9 17v1a3 3 0 0 0 6 0v-1"/></svg></div>
+                <div class="body"><h5>Notifications</h5><p>Booking reminders, full-spot alerts</p></div>
+                <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+              <div class="menu-row">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><path d="M12 8v4M12 16h.01"/></svg></div>
+                <div class="body"><h5>Help &amp; feedback</h5><p>Tell us what's missing</p></div>
+                <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+              <div class="menu-row">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></div>
+                <div class="body"><h5>About StudySpot</h5><p>Built for VT · CS 3724 · Spring 2026</p></div>
+                <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+            </div>
+            <p style="text-align:center; font-size: 11px; color: var(--bark-400); margin-top: 24px; font-family: 'Instrument Serif', serif; font-style: italic;">— Team User First · Group 8 —</p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Bottom nav -->
+      <nav class="tabbar" id="tabbar">
+        <button class="tab is-active" data-tab="map">
+          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg></div>
+          Map
+        </button>
+        <button class="tab" data-tab="bookings">
+          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          Bookings
+        </button>
+        <button class="tab" data-tab="saved">
+          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 21-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z"/></svg></div>
+          Saved
+        </button>
+        <button class="tab" data-tab="profile">
+          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
+          Profile
+        </button>
+      </nav>
+
+      <!-- Toast -->
+      <div class="toast" id="toast"></div>
+
+      <!-- Share sheet -->
+      <div class="sheet-backdrop" id="sheetBackdrop"></div>
+      <div class="sheet" id="shareSheet">
+        <div class="grabber"></div>
+        <h3>Share with friends</h3>
+        <p>Send this booking to your study group.</p>
+        <div class="share-grid">
+          <div class="share-opt" data-share="imsg">
+            <div class="ic imsg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg></div>
+            <span>iMessage</span>
+          </div>
+          <div class="share-opt" data-share="copy">
+            <div class="ic copy"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
+            <span>Copy link</span>
+          </div>
+          <div class="share-opt" data-share="airdrop">
+            <div class="ic air"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a10 10 0 0 0 10-10M12 22A10 10 0 0 1 2 12M12 22V12M2 12a10 10 0 0 1 20 0"/></svg></div>
+            <span>AirDrop</span>
+          </div>
+          <div class="share-opt" data-share="qr">
+            <div class="ic qr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h2v2h-2zM18 14h3M14 18v3M18 18h3v3"/></svg></div>
+            <span>QR code</span>
+          </div>
+        </div>
+        <button class="sheet-cancel" id="sheetCancel">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* -------------------- Data -------------------- */
+
+const SPOTS = [
+  {
+    id: "newman",
+    name: "Newman Library",
+    type: "Main university library",
+    initial: "N",
+    occPct: 75,
+    walkMin: 7,
+    hours: "7:00 AM — 2:00 AM",
+    openNow: true,
+    amenities: { quiet: true, outlets: true, wifi: true, group: true },
+    description: "VT's main library. The fourth floor is where it gets serious — silent, well-lit, all the outlets you need. Group rooms book out fast around midterms.",
+    rooms: [
+      { id: "n-204", name: "Group Room 204", capacity: 4, floor: "2nd floor" },
+      { id: "n-312", name: "Group Room 312", capacity: 6, floor: "3rd floor · whiteboard" },
+      { id: "n-418", name: "Quiet Pod 418", capacity: 2, floor: "4th floor · silent zone" },
+    ],
+    pos: { x: 79, y: 22 } // % of map
+  },
+  {
+    id: "mcbryde",
+    name: "McBryde Hall",
+    type: "Math &amp; classroom building",
+    initial: "M",
+    occPct: 30,
+    walkMin: 4,
+    hours: "7:00 AM — 11:00 PM",
+    openNow: true,
+    amenities: { quiet: true, outlets: true, wifi: true, group: true },
+    description: "Quiet classroom building right off the Drillfield. After hours, the second floor lounges are some of the most underrated study spots on campus.",
+    rooms: [
+      { id: "m-250", name: "Room 250", capacity: 6, floor: "2nd floor · whiteboard" },
+      { id: "m-118", name: "Room 118", capacity: 4, floor: "1st floor · projector" },
+    ],
+    pos: { x: 51, y: 84 }
+  },
+  {
+    id: "torgersen",
+    name: "Torgersen Hall",
+    type: "Engineering · CS hub",
+    initial: "T",
+    occPct: 45,
+    walkMin: 5,
+    hours: "24 hours · with student ID",
+    openNow: true,
+    amenities: { quiet: false, outlets: true, wifi: true, group: true },
+    description: "The bridge to Newman. CS students live here. Loud-ish on the first floor, quieter past the bridge. Group rooms can be booked up to 7 days ahead.",
+    rooms: [
+      { id: "t-bridge", name: "Bridge Lounge", capacity: 8, floor: "Bridge level · whiteboards" },
+      { id: "t-3050", name: "Room 3050", capacity: 4, floor: "3rd floor" },
+    ],
+    pos: { x: 83, y: 64 }
+  },
+  {
+    id: "goodwin",
+    name: "Goodwin Hall",
+    type: "Engineering open atrium",
+    initial: "G",
+    occPct: 22,
+    walkMin: 8,
+    hours: "6:00 AM — 12:00 AM",
+    openNow: true,
+    amenities: { quiet: true, outlets: true, wifi: true, group: false },
+    description: "Newer engineering building with cathedral-tall atriums. Lots of natural light, soft seating, plenty of outlets. No bookable rooms — first come, first sit.",
+    rooms: [],
+    pos: { x: 18, y: 64 }
+  },
+  {
+    id: "squires",
+    name: "Squires Student Center",
+    type: "Student union · cafés",
+    initial: "S",
+    occPct: 88,
+    walkMin: 6,
+    hours: "6:00 AM — 1:00 AM",
+    openNow: true,
+    amenities: { quiet: false, outlets: true, wifi: true, group: false },
+    description: "Buzzing common area with a coffee shop and food court. Great for a casual session with a coffee, terrible for focused exam prep.",
+    rooms: [],
+    pos: { x: 51, y: 18 }
+  },
+  {
+    id: "surge",
+    name: "Surge Building",
+    type: "Quiet office building",
+    initial: "U",
+    occPct: 18,
+    walkMin: 9,
+    hours: "8:00 AM — 9:00 PM",
+    openNow: true,
+    amenities: { quiet: true, outlets: true, wifi: true, group: true },
+    description: "The hidden gem. Almost never crowded. Good if you want to disappear for three hours and actually get something done.",
+    rooms: [
+      { id: "su-201", name: "Room 201", capacity: 4, floor: "2nd floor" },
+    ],
+    pos: { x: 17, y: 20 }
+  },
+  {
+    id: "drillfield",
+    name: "Drillfield Lawn",
+    type: "Outdoor study space",
+    initial: "D",
+    occPct: 55,
+    walkMin: 3,
+    hours: "Sunrise — sunset",
+    openNow: true,
+    amenities: { quiet: true, outlets: false, wifi: true, group: false },
+    description: "Outdoor study under the tree on the south end. Bring your charged laptop and sunglasses. Weather-dependent, obviously.",
+    rooms: [],
+    pos: { x: 51, y: 50 }
+  }
+];
+
+const FILTERS = [
+  { id: "all", label: "All", icon: null },
+  { id: "quiet", label: "Quiet", icon: "quiet" },
+  { id: "outlets", label: "Outlets", icon: "outlets" },
+  { id: "wifi", label: "WiFi", icon: "wifi" },
+  { id: "open", label: "Open Now", icon: "clock" }
+];
+
+const TIME_SLOTS = [
+  { t: "1:00 PM", available: false },
+  { t: "1:30 PM", available: false },
+  { t: "2:00 PM", available: true },
+  { t: "2:30 PM", available: true },
+  { t: "3:00 PM", available: true },
+  { t: "3:30 PM", available: true },
+  { t: "4:00 PM", available: true },
+  { t: "4:30 PM", available: true },
+  { t: "5:00 PM", available: false },
+  { t: "5:30 PM", available: true },
+  { t: "6:00 PM", available: true },
+  { t: "7:00 PM", available: true }
+];
+
+/* -------------------- State -------------------- */
+
+const state = {
+  screen: "map",
+  history: [],
+  tab: "map",
+  filters: new Set(),
+  viewMode: "map",
+  selectedSpotId: null,
+  preview: null,
+  booking: { spotId: null, roomId: null, time: null, duration: 60, step: "room" },
+  savedSpotIds: new Set(["mcbryde", "newman"]),
+  bookings: [
+    { id: "b1", spotId: "newman", roomName: "Group Room 312", date: "Apr 30 · today", time: "3:00 PM", duration: 60, status: "upcoming" },
+    { id: "b2", spotId: "torgersen", roomName: "Bridge Lounge", date: "Apr 22", time: "5:30 PM", duration: 90, status: "past" },
+    { id: "b3", spotId: "mcbryde", roomName: "Room 250", date: "Apr 18", time: "2:00 PM", duration: 120, status: "past" }
+  ],
+  demoMode: false
+};
+
+/* -------------------- Helpers -------------------- */
+
+function $(s, root) { return (root || document).querySelector(s); }
+function $$(s, root) { return Array.from((root || document).querySelectorAll(s)); }
+function spotById(id) { return SPOTS.find(s => s.id === id); }
+
+function occClass(p) {
+  if (p < 40) return "open";
+  if (p < 75) return "fill";
+  return "full";
+}
+function occLabel(p) {
+  if (p < 40) return "Open";
+  if (p < 75) return "Filling up";
+  return "Full";
+}
+
+const ICONS = {
+  quiet: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg>',
+  outlets: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><path d="M8 16h8"/></svg>',
+  wifi: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01M2 8.8a15 15 0 0 1 20 0"/></svg>',
+  clock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+  group: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.9"/><circle cx="9" cy="7" r="4"/><path d="M16 3.1a4 4 0 0 1 0 7.7"/></svg>',
+  walk: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13" cy="4" r="2"/><path d="M11 12.5 9 22M11 12.5l-2.5-3 4.5-2 3 3 3 1M11 12.5 14 18l4 1"/></svg>',
+};
+
+function showToast(msg, dur) {
+  dur = dur || 1800;
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("is-visible");
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove("is-visible"), dur);
+}
+
+/* -------------------- Navigation -------------------- */
+
+const SCREEN_TABS = { map: "map", bookings: "bookings", saved: "saved", profile: "profile" };
+const TAB_SCREENS = ["map", "bookings", "saved", "profile"];
+
+function navigate(target, opts) {
+  opts = opts || {};
+  const cur = state.screen;
+  if (cur === target) return;
+
+  const screens = $$(".screen");
+  screens.forEach(el => el.classList.remove("is-active", "is-prev"));
+
+  const next = $('.screen[data-screen="' + target + '"]');
+  if (!next) return;
+  next.scrollTop = 0;
+  next.classList.add("is-active");
+
+  // If we're navigating to a tab, mark the current as prev for nicer transition
+  // (but for tab swaps keep them as fade only — clean class)
+  if (TAB_SCREENS.includes(target) && TAB_SCREENS.includes(cur)) {
+    document.body.classList.add("tab-fade");
+  } else {
+    document.body.classList.remove("tab-fade");
+    const prev = $('.screen[data-screen="' + cur + '"]');
+    if (prev) prev.classList.add("is-prev");
+    setTimeout(() => prev && prev.classList.remove("is-prev"), 500);
+  }
+
+  if (opts.pushHistory !== false) state.history.push(cur);
+  state.screen = target;
+
+  if (TAB_SCREENS.includes(target)) {
+    state.tab = target;
+    updateTabbar();
+  }
+
+  // hide tabbar on booking + confirmation
+  const hideTabs = target === "booking" || target === "confirmation" || target === "detail";
+  $("#tabbar").style.display = hideTabs ? "none" : "flex";
+}
+
+function back() {
+  const prev = state.history.pop();
+  if (!prev) return navigate("map", { pushHistory: false });
+  navigate(prev, { pushHistory: false });
+}
+
+function updateTabbar() {
+  $$(".tab").forEach(t => t.classList.toggle("is-active", t.dataset.tab === state.tab));
+}
+
+/* -------------------- Filters -------------------- */
+
+function renderChips() {
+  const c = $("#chips");
+  c.innerHTML = FILTERS.map(f => {
+    const isActive = (f.id === "all" && state.filters.size === 0) || state.filters.has(f.id);
+    const icon = f.icon ? ICONS[f.icon] : '<span class="chip-dot"></span>';
+    return '<button class="chip ' + (isActive ? "is-active" : "") + '" data-filter="' + f.id + '">'
+         + icon + f.label
+         + '</button>';
+  }).join("");
+}
+
+function applyFilter(id) {
+  if (id === "all") {
+    state.filters.clear();
+  } else {
+    if (state.filters.has(id)) state.filters.delete(id);
+    else state.filters.add(id);
+  }
+  renderChips();
+  renderMap();
+  renderList();
+}
+
+function passes(spot) {
+  if (state.filters.size === 0) return true;
+  for (const f of state.filters) {
+    if (f === "quiet"   && !spot.amenities.quiet)   return false;
+    if (f === "outlets" && !spot.amenities.outlets) return false;
+    if (f === "wifi"    && !spot.amenities.wifi)    return false;
+    if (f === "open"    && (!spot.openNow || spot.occPct >= 95)) return false;
+  }
+  return true;
+}
+
+/* -------------------- Map view -------------------- */
+
+function renderMap() {
+  const layer = $("#pinLayer");
+  const filtered = SPOTS.filter(passes);
+  layer.innerHTML = filtered.map(s => {
+    const cls = occClass(s.occPct);
+    const sel = (state.selectedSpotId === s.id) ? " is-selected" : "";
+    return ''
+      + '<div class="pin' + sel + '" style="left:' + s.pos.x + '%;top:' + s.pos.y + '%" data-spot="' + s.id + '">'
+      +   '<span class="pulse ' + cls + '"></span>'
+      +   '<div class="pin-bubble">'
+      +     '<span class="pin-dot ' + cls + '"></span>'
+      +     s.walkMin + ' min'
+      +   '</div>'
+      +   '<div class="pin-shadow"></div>'
+      + '</div>';
+  }).join("");
+}
+
+function renderPreview(id) {
+  const s = spotById(id);
+  if (!s) return;
+  const wrap = $("#preview");
+  const cls = occClass(s.occPct);
+  wrap.innerHTML = ''
+    + '<div class="preview-row">'
+    +   '<div class="preview-thumb">' + s.initial + '</div>'
+    +   '<div class="preview-info">'
+    +     '<h4>' + s.name + '</h4>'
+    +     '<p>' + s.walkMin + ' min walk <span class="dot"></span> ' + s.occPct + '% full <span class="dot"></span> ' + s.type + '</p>'
+    +   '</div>'
+    +   '<span class="occ-pill ' + cls + '">' + occLabel(s.occPct) + '</span>'
+    + '</div>';
+  wrap.classList.add("is-visible");
+  wrap.onclick = function() { openDetail(id); };
+}
+
+function hidePreview() {
+  state.selectedSpotId = null;
+  $("#preview").classList.remove("is-visible");
+  renderMap();
+}
+
+/* -------------------- List view -------------------- */
+
+function renderList() {
+  const filtered = SPOTS.filter(passes).sort((a,b) => a.walkMin - b.walkMin);
+  $("#listCount").textContent = filtered.length + " spots · sorted by walk time";
+  const cont = $("#listContainer");
+  if (filtered.length === 0) {
+    cont.innerHTML = '<div class="empty-state"><h3>No spots match</h3>Try removing a filter or two.</div>';
+    return;
+  }
+  cont.innerHTML = filtered.map(s => {
+    const cls = occClass(s.occPct);
+    return ''
+      + '<div class="list-row" data-spot="' + s.id + '">'
+      +   '<div class="list-thumb">' + s.initial + '</div>'
+      +   '<div class="body">'
+      +     '<h4>' + s.name + '</h4>'
+      +     '<div class="meta">'
+      +       s.walkMin + ' min <span class="dot"></span> '
+      +       s.type
+      +     '</div>'
+      +     '<div class="occ-bar"><i class="' + cls + '" style="width:' + s.occPct + '%"></i></div>'
+      +   '</div>'
+      +   '<span class="occ-pill ' + cls + '">' + s.occPct + '%</span>'
+      + '</div>';
+  }).join("");
+}
+
+function setViewMode(mode) {
+  state.viewMode = mode;
+  $$("#mapWrap, #listView").forEach(el => el.classList.add("hidden"));
+  if (mode === "map") $("#mapWrap").classList.remove("hidden");
+  else $("#listView").classList.remove("hidden");
+  $$(".toggle button").forEach(b => b.classList.toggle("is-active", b.dataset.mode === mode));
+}
+
+/* -------------------- Detail screen -------------------- */
+
+function openDetail(id) {
+  state.selectedSpotId = id;
+  renderDetail();
+  navigate("detail");
+}
+
+function renderDetail() {
+  const s = spotById(state.selectedSpotId);
+  if (!s) return;
+  const cls = occClass(s.occPct);
+  const lab = occLabel(s.occPct);
+
+  // svg ring
+  const r = 14, c = 2 * Math.PI * r;
+  const offset = c - (s.occPct / 100) * c;
+  const ringColor = cls === "open" ? "#6f9b6c" : cls === "fill" ? "#d39a3b" : "#c45a4a";
+
+  const isSaved = state.savedSpotIds.has(s.id);
+  $("#saveBtn").classList.toggle("is-saved", isSaved);
+  $("#saveBtn").innerHTML = isSaved
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m12 21-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 21-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z"/></svg>';
+
+  const amen = [
+    { k: "quiet",   label: "Quiet zones", icon: ICONS.quiet,   on: s.amenities.quiet },
+    { k: "outlets", label: "Outlets",     icon: ICONS.outlets, on: s.amenities.outlets },
+    { k: "wifi",    label: "WiFi",        icon: ICONS.wifi,    on: s.amenities.wifi },
+    { k: "group",   label: "Group rooms", icon: ICONS.group,   on: s.amenities.group },
+  ];
+
+  const ctaHtml = s.amenities.group
+    ? '<button class="cta" id="bookCta">Book a group room <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>'
+    : '<button class="cta cta--ghost"><span>Get directions</span><span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span></button>';
+
+  $("#detailBody").innerHTML = ''
+    + '<div class="hero">'
+    +   '<div class="badge">' + s.type + '</div>'
+    +   '<svg class="bldg" viewBox="0 0 200 200" fill="none">'
+    +     '<rect x="40" y="60" width="120" height="120" rx="6" fill="#fbf8f0" opacity="0.95"/>'
+    +     '<rect x="55" y="78" width="20" height="24" rx="2" fill="#a78c70" opacity="0.5"/>'
+    +     '<rect x="85" y="78" width="20" height="24" rx="2" fill="#a78c70" opacity="0.5"/>'
+    +     '<rect x="115" y="78" width="20" height="24" rx="2" fill="#a78c70" opacity="0.5"/>'
+    +     '<rect x="55" y="112" width="20" height="24" rx="2" fill="#a78c70" opacity="0.5"/>'
+    +     '<rect x="115" y="112" width="20" height="24" rx="2" fill="#a78c70" opacity="0.5"/>'
+    +     '<rect x="92" y="112" width="16" height="60" rx="2" fill="#a78c70" opacity="0.6"/>'
+    +     '<path d="M30 70 L100 28 L170 70" stroke="#fbf8f0" stroke-width="3" fill="#fbf8f0" opacity="0.95"/>'
+    +     '<rect x="50" y="180" width="100" height="6" fill="#a78c70" opacity="0.4"/>'
+    +   '</svg>'
+    +   '<div class="occ-overlay">'
+    +     '<div class="ring">'
+    +       '<svg viewBox="0 0 36 36">'
+    +         '<circle cx="18" cy="18" r="' + r + '" fill="none" stroke="#e2d5b8" stroke-width="3"/>'
+    +         '<circle cx="18" cy="18" r="' + r + '" fill="none" stroke="' + ringColor + '" stroke-width="3" stroke-linecap="round" stroke-dasharray="' + c + '" stroke-dashoffset="' + offset + '"/>'
+    +       '</svg>'
+    +       '<div class="pct">' + s.occPct + '%</div>'
+    +     '</div>'
+    +     '<div>'
+    +       '<div class="label">' + lab + '</div>'
+    +       '<div class="value">' + Math.round((100 - s.occPct) / 2) + ' seats free</div>'
+    +     '</div>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="detail-body">'
+    +   '<div class="detail-title">' + s.name + '</div>'
+    +   '<div class="detail-subtitle">'
+    +     'Virginia Tech <span class="dot"></span> ' + s.type
+    +   '</div>'
+    +   '<div class="stat-row">'
+    +     '<div class="stat"><div class="v">' + s.walkMin + ' <small>min</small></div><div class="l">walk</div></div>'
+    +     '<div class="stat"><div class="v">' + s.occPct + '<small>%</small></div><div class="l">' + lab + '</div></div>'
+    +     '<div class="stat"><div class="v">' + s.rooms.length + '</div><div class="l">' + (s.rooms.length === 1 ? "room" : "rooms") + '</div></div>'
+    +   '</div>'
+    +   '<p style="margin-top: 16px; font-size: 13.5px; line-height: 1.55; color: var(--bark-700);">' + s.description + '</p>'
+    +   '<div class="section-h">Amenities</div>'
+    +   '<div class="amenities">'
+    +     amen.map(a => '<div class="amen ' + (a.on ? "" : "is-off") + '"><span class="ic">' + a.icon + '</span>' + a.label + '</div>').join("")
+    +   '</div>'
+    +   '<div class="section-h">Hours</div>'
+    +   '<div class="hours-row">'
+    +     '<span class="ic">' + ICONS.clock + '</span>'
+    +     '<div class="body">'
+    +       '<div class="label">Today</div>'
+    +       '<div class="value">' + s.hours + '</div>'
+    +     '</div>'
+    +     '<span class="open-now">' + (s.openNow ? "Open now" : "Closed") + '</span>'
+    +   '</div>'
+    +   '<div class="cta-bar">' + ctaHtml + '</div>'
+    + '</div>';
+
+  const bookCta = $("#bookCta");
+  if (bookCta) bookCta.addEventListener("click", () => startBooking(s.id));
+}
+
+/* -------------------- Booking flow -------------------- */
+
+function startBooking(spotId) {
+  state.booking = { spotId, roomId: null, time: null, duration: 60, step: "room" };
+  renderBooking();
+  navigate("booking");
+}
+
+function setStep(step) {
+  state.booking.step = step;
+  $$("#stepIndicator .step").forEach(el => {
+    el.classList.remove("is-active", "is-done");
+    const order = { room: 0, time: 1, confirm: 2 };
+    const elIdx = order[el.dataset.step];
+    const curIdx = order[step];
+    if (elIdx === curIdx) el.classList.add("is-active");
+    else if (elIdx < curIdx) el.classList.add("is-done");
+  });
+  $("#bookingTitle").textContent = step === "room" ? "Pick a room" : step === "time" ? "Pick a time" : "Confirm";
+  renderBookingBody();
+}
+
+function renderBooking() {
+  setStep("room");
+}
+
+function renderBookingBody() {
+  const s = spotById(state.booking.spotId);
+  const body = $("#bookingBody");
+  if (!s) { body.innerHTML = ""; return; }
+  const step = state.booking.step;
+
+  if (step === "room") {
+    body.innerHTML = ''
+      + '<div class="booking-prompt">Pick a room <em>at ' + s.name + '</em></div>'
+      + s.rooms.map(r => {
+          const sel = state.booking.roomId === r.id ? " is-selected" : "";
+          return '<div class="room-card' + sel + '" data-room="' + r.id + '">'
+               +   '<div class="ill">' + ICONS.group + '</div>'
+               +   '<div class="body">'
+               +     '<h5>' + r.name + '</h5>'
+               +     '<p>' + r.floor + ' <span class="dot"></span> seats ' + r.capacity + '</p>'
+               +   '</div>'
+               +   '<div class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M5 12l5 5 9-9"/></svg></div>'
+               + '</div>';
+        }).join("");
+  } else if (step === "time") {
+    const r = s.rooms.find(rr => rr.id === state.booking.roomId);
+    body.innerHTML = ''
+      + '<div class="review-room" style="margin-bottom: 16px;">'
+      +   '<div class="ill">' + ICONS.group + '</div>'
+      +   '<div><h5>' + (r ? r.name : "") + '</h5><p>' + s.name + (r ? ' · ' + r.floor : "") + '</p></div>'
+      + '</div>'
+      + '<div class="booking-prompt">When works <em>for you?</em></div>'
+      + '<div class="time-grid">'
+      +   TIME_SLOTS.map(slot => {
+          const sel = state.booking.time === slot.t ? " is-selected" : "";
+          const dis = slot.available ? "" : "disabled";
+          return '<button class="time-slot' + sel + '" ' + dis + ' data-time="' + slot.t + '">' + slot.t + '</button>';
+        }).join("")
+      + '</div>';
+  } else {
+    const r = s.rooms.find(rr => rr.id === state.booking.roomId);
+    const dur = state.booking.duration;
+    const time = state.booking.time;
+    body.innerHTML = ''
+      + '<div class="review-room">'
+      +   '<div class="ill">' + ICONS.group + '</div>'
+      +   '<div><h5>' + (r ? r.name : "") + '</h5><p>' + s.name + (r ? ' · ' + r.floor : "") + '</p></div>'
+      + '</div>'
+      + '<div class="section-h">Duration</div>'
+      + '<div class="duration-row">'
+      +   [30, 60, 90, 120].map(d => '<button class="dur' + (d === dur ? " is-selected" : "") + '" data-dur="' + d + '">' + d + " min" + '</button>').join("")
+      + '</div>'
+      + '<div class="summary">'
+      +   '<div class="row"><span class="label">Spot</span><span class="value">' + s.name + '</span></div>'
+      +   '<div class="row"><span class="label">Room</span><span class="value">' + (r ? r.name : "") + '</span></div>'
+      +   '<div class="row"><span class="label">Date</span><span class="value">Today, Apr 28</span></div>'
+      +   '<div class="row"><span class="label">Start</span><span class="value">' + time + '</span></div>'
+      +   '<div class="row total"><span class="label">Duration</span><span class="value">' + dur + ' minutes</span></div>'
+      + '</div>'
+      + '<div class="cta-bar">'
+      +   '<button class="cta" id="confirmBookingBtn">Confirm booking <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></span></button>'
+      + '</div>';
+  }
+}
+
+function pickRoom(id) {
+  state.booking.roomId = id;
+  renderBookingBody();
+  setTimeout(() => setStep("time"), 220);
+}
+
+function pickTime(t) {
+  state.booking.time = t;
+  renderBookingBody();
+  setTimeout(() => setStep("confirm"), 220);
+}
+
+function pickDuration(d) {
+  state.booking.duration = d;
+  renderBookingBody();
+}
+
+function confirmBooking() {
+  const s = spotById(state.booking.spotId);
+  const r = s.rooms.find(rr => rr.id === state.booking.roomId);
+  // Add to bookings
+  state.bookings.unshift({
+    id: "b" + Date.now(),
+    spotId: state.booking.spotId,
+    roomName: r ? r.name : "",
+    date: "Apr 28 · today",
+    time: state.booking.time,
+    duration: state.booking.duration,
+    status: "upcoming"
+  });
+  renderConfirmation();
+  navigate("confirmation");
+  renderBookings();
+}
+
+function renderConfirmation() {
+  const s = spotById(state.booking.spotId);
+  const r = s.rooms.find(rr => rr.id === state.booking.roomId);
+  const dur = state.booking.duration;
+  const time = state.booking.time;
+
+  $("#confBody").innerHTML = ''
+    + '<div class="check-circle">'
+    +   '<svg class="check-svg" viewBox="0 0 48 48"><path d="M10 24l10 10 18-18"/></svg>'
+    + '</div>'
+    + '<h1>You\'re <em>all set.</em></h1>'
+    + '<p>Walk over when you\'re ready — we\'ve held the room for you.</p>'
+    + '<div class="ticket">'
+    +   '<div class="row"><span><div class="l">Spot</div><div class="v big">' + s.name + '</div></span><span><div class="l">Room</div><div class="v">' + (r ? r.name : "") + '</div></span></div>'
+    +   '<div class="row"><span><div class="l">When</div><div class="v">Today, ' + time + '</div></span><span><div class="l">Length</div><div class="v">' + dur + ' min</div></span></div>'
+    +   '<div class="row"><span><div class="l">Walk time</div><div class="v">' + s.walkMin + ' min from where you are</div></span></div>'
+    + '</div>'
+    + '<div class="conf-actions">'
+    +   '<button class="cta" id="dirsBtn">Get directions <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 11l18-8-8 18-2-8z"/></svg></span></button>'
+    +   '<button class="cta cta--ghost" id="confShareBtn">Share with friends <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></span></button>'
+    +   '<button class="cta cta--ghost" id="doneBtn" style="border-color: var(--line); color: var(--bark-600);">Back to map</button>'
+    + '</div>';
+
+  $("#dirsBtn").addEventListener("click", () => showToast("Opening Apple Maps to " + s.name + "…"));
+  $("#confShareBtn").addEventListener("click", openShareSheet);
+  $("#doneBtn").addEventListener("click", () => {
+    state.history = [];
+    navigate("map", { pushHistory: false });
+  });
+}
+
+/* -------------------- Bookings tab -------------------- */
+
+function renderBookings() {
+  const upWrap = $("#bookingsUpcoming");
+  const pastWrap = $("#bookingsPast");
+  const upcoming = state.bookings.filter(b => b.status === "upcoming");
+  const past = state.bookings.filter(b => b.status === "past");
+
+  upWrap.innerHTML = upcoming.length === 0
+    ? '<div class="empty-state">No upcoming bookings. Find a spot on the map.</div>'
+    : upcoming.map(b => {
+        const s = spotById(b.spotId);
+        return '<div class="booking-card upcoming" data-spot="' + b.spotId + '">'
+             +   '<div class="ill">' + s.initial + '</div>'
+             +   '<div class="body">'
+             +     '<h4>' + s.name + '</h4>'
+             +     '<div class="when">' + b.date + ' · ' + b.time + ' · ' + b.duration + ' min</div>'
+             +     '<div class="room">' + b.roomName + '</div>'
+             +     '<div class="countdown">starts in 2h 14m</div>'
+             +   '</div>'
+             + '</div>';
+      }).join("");
+
+  pastWrap.innerHTML = past.length === 0
+    ? '<div class="empty-state">No past visits yet.</div>'
+    : past.map(b => {
+        const s = spotById(b.spotId);
+        return '<div class="booking-card past" data-spot="' + b.spotId + '">'
+             +   '<div class="ill">' + s.initial + '</div>'
+             +   '<div class="body">'
+             +     '<h4>' + s.name + '</h4>'
+             +     '<div class="when">' + b.date + ' · ' + b.time + ' · ' + b.duration + ' min</div>'
+             +     '<div class="room">' + b.roomName + '</div>'
+             +   '</div>'
+             + '</div>';
+      }).join("");
+}
+
+/* -------------------- Saved tab -------------------- */
+
+function renderSaved() {
+  const wrap = $("#savedContent");
+  const saved = SPOTS.filter(s => state.savedSpotIds.has(s.id));
+  if (saved.length === 0) {
+    wrap.innerHTML = '<div class="empty-state"><h3>Nothing saved yet</h3>Tap the heart on any spot to add it here.</div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="saved-grid">'
+    + saved.map(s => {
+        const cls = occClass(s.occPct);
+        return '<div class="saved-card" data-spot="' + s.id + '">'
+             +   '<div class="img">' + s.initial + '</div>'
+             +   '<div class="body">'
+             +     '<h5>' + s.name + '</h5>'
+             +     '<div class="meta"><i class="' + cls + '"></i>' + occLabel(s.occPct) + ' · ' + s.walkMin + ' min</div>'
+             +   '</div>'
+             + '</div>';
+      }).join("")
+    + '</div>';
+}
+
+/* -------------------- Share sheet -------------------- */
+
+function openShareSheet() {
+  $("#sheetBackdrop").classList.add("is-visible");
+  $("#shareSheet").classList.add("is-visible");
+}
+function closeShareSheet() {
+  $("#sheetBackdrop").classList.remove("is-visible");
+  $("#shareSheet").classList.remove("is-visible");
+}
+
+/* -------------------- Demo mode -------------------- */
+
+let demoTimer = null;
+function setDemoMode(on) {
+  state.demoMode = on;
+  $("#demoPill").classList.toggle("on", on);
+  $("#demoModeMenu").classList.toggle("is-on", on);
+  if (on) {
+    showToast("Live demo on — occupancy will update");
+    demoTimer = setInterval(stepDemo, 4000);
+  } else {
+    clearInterval(demoTimer);
+    showToast("Live demo off");
+  }
+}
+function stepDemo() {
+  // Random small shift on a random spot
+  const s = SPOTS[Math.floor(Math.random() * SPOTS.length)];
+  const delta = Math.floor(Math.random() * 11) - 5;
+  s.occPct = Math.max(8, Math.min(98, s.occPct + delta));
+  renderMap();
+  if (state.viewMode === "list") renderList();
+  if (state.preview === s.id) renderPreview(s.id);
+}
+
+/* -------------------- Save toggle -------------------- */
+
+function toggleSave(id) {
+  if (state.savedSpotIds.has(id)) {
+    state.savedSpotIds.delete(id);
+    showToast("Removed from saved");
+  } else {
+    state.savedSpotIds.add(id);
+    showToast("Saved · find it in your spots");
+  }
+  renderDetail();
+  renderSaved();
+}
+
+/* -------------------- Search -------------------- */
+
+function filterSearch(q) {
+  q = q.trim().toLowerCase();
+  // simple search: filter list/map by name match in addition to chip filters
+  const matches = SPOTS.filter(s => passes(s) && (q === "" || s.name.toLowerCase().includes(q) || s.type.toLowerCase().includes(q)));
+  const layer = $("#pinLayer");
+  layer.innerHTML = matches.map(s => {
+    const cls = occClass(s.occPct);
+    const sel = (state.selectedSpotId === s.id) ? " is-selected" : "";
+    return ''
+      + '<div class="pin' + sel + '" style="left:' + s.pos.x + '%;top:' + s.pos.y + '%" data-spot="' + s.id + '">'
+      +   '<span class="pulse ' + cls + '"></span>'
+      +   '<div class="pin-bubble">'
+      +     '<span class="pin-dot ' + cls + '"></span>' + s.walkMin + ' min'
+      +   '</div>'
+      +   '<div class="pin-shadow"></div>'
+      + '</div>';
+  }).join("");
+}
+
+/* -------------------- Wire-up -------------------- */
+
+function init() {
+  renderChips();
+  renderMap();
+  renderList();
+  renderBookings();
+  renderSaved();
+
+  // Onboarding dismiss
+  $("#onbStart").addEventListener("click", () => $("#onb").classList.add("dismissed"));
+  $("#onbSkip").addEventListener("click", () => $("#onb").classList.add("dismissed"));
+
+  // Chips
+  $("#chips").addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip");
+    if (btn) applyFilter(btn.dataset.filter);
+  });
+
+  // View toggle
+  $$(".toggle button").forEach(b => {
+    b.addEventListener("click", () => setViewMode(b.dataset.mode));
+  });
+
+  // Pin tap
+  $("#pinLayer").addEventListener("click", (e) => {
+    const pin = e.target.closest(".pin");
+    if (!pin) return;
+    const id = pin.dataset.spot;
+    if (state.selectedSpotId === id) {
+      // Tap again -> open detail
+      openDetail(id);
+    } else {
+      state.selectedSpotId = id;
+      state.preview = id;
+      renderPreview(id);
+      renderMap();
+    }
+  });
+
+  // List row tap
+  $("#listContainer").addEventListener("click", (e) => {
+    const row = e.target.closest(".list-row");
+    if (row) openDetail(row.dataset.spot);
+  });
+
+  // Tabbar
+  $("#tabbar").addEventListener("click", (e) => {
+    const t = e.target.closest(".tab");
+    if (!t) return;
+    state.history = [];
+    navigate(t.dataset.tab, { pushHistory: false });
+  });
+
+  // Back nav (universal)
+  document.addEventListener("click", (e) => {
+    if (e.target.closest('[data-nav="back"]')) {
+      back();
+    }
+    if (e.target.closest('[data-nav="back-booking"]')) {
+      const step = state.booking.step;
+      if (step === "confirm") setStep("time");
+      else if (step === "time") setStep("room");
+      else back();
+    }
+  });
+
+  // Booking interactions
+  $("#bookingBody").addEventListener("click", (e) => {
+    const room = e.target.closest(".room-card");
+    if (room) return pickRoom(room.dataset.room);
+    const time = e.target.closest(".time-slot");
+    if (time && !time.disabled) return pickTime(time.dataset.time);
+    const dur = e.target.closest(".dur");
+    if (dur) return pickDuration(parseInt(dur.dataset.dur, 10));
+    if (e.target.closest("#confirmBookingBtn")) confirmBooking();
+  });
+
+  // Detail save/share
+  $("#saveBtn").addEventListener("click", () => toggleSave(state.selectedSpotId));
+  $("#shareBtn").addEventListener("click", openShareSheet);
+
+  // Bookings tab open spot
+  $("#bookingsUpcoming").addEventListener("click", (e) => {
+    const c = e.target.closest(".booking-card");
+    if (c) openDetail(c.dataset.spot);
+  });
+  $("#bookingsPast").addEventListener("click", (e) => {
+    const c = e.target.closest(".booking-card");
+    if (c) openDetail(c.dataset.spot);
+  });
+  $("#savedContent").addEventListener("click", (e) => {
+    const c = e.target.closest(".saved-card");
+    if (c) openDetail(c.dataset.spot);
+  });
+
+  // Share sheet
+  $("#sheetBackdrop").addEventListener("click", closeShareSheet);
+  $("#sheetCancel").addEventListener("click", closeShareSheet);
+  $$(".share-opt").forEach(el => {
+    el.addEventListener("click", () => {
+      const k = el.dataset.share;
+      const msg = k === "copy" ? "Link copied to clipboard" : k === "qr" ? "QR code generated" : k === "airdrop" ? "AirDrop · looking for nearby devices…" : "Opening iMessage…";
+      closeShareSheet();
+      setTimeout(() => showToast(msg), 220);
+    });
+  });
+
+  // Demo mode
+  $("#demoPill").addEventListener("click", () => setDemoMode(!state.demoMode));
+  $("#demoModeMenu").addEventListener("click", () => setDemoMode(!state.demoMode));
+
+  // Search
+  $("#searchInput").addEventListener("input", (e) => filterSearch(e.target.value));
+
+  // Map background tap dismisses preview
+  $("#mapWrap").addEventListener("click", (e) => {
+    if (e.target.closest(".pin")) return;
+    if (e.target.closest(".preview")) return;
+    if (e.target.closest(".legend")) return;
+    if (e.target.closest(".toggle")) return;
+    if (e.target.closest(".demo-pill")) return;
+    if (state.preview) {
+      state.preview = null;
+      hidePreview();
+    }
+  });
+
+  // Keyboard shortcut (desktop demo)
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      $("#searchInput").focus();
+    }
+    if (e.key === "Escape") {
+      closeShareSheet();
+      if (state.history.length) back();
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

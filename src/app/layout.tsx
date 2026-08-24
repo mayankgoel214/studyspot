@@ -17,6 +17,14 @@ const instrument = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  // Without this the generated og:image resolves to a relative URL and the
+  // link-preview card comes out blank.
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : "http://localhost:3000"),
+  ),
   title: "StudySpot — Find a place to study at VT",
   description:
     "StudySpot helps Virginia Tech students find an open seat, the right vibe, and book a group room in three taps. Live, crowdsourced occupancy from your peers.",

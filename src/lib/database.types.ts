@@ -60,14 +60,14 @@ export type Database = {
           id: string;
           spot_id: string;
           status: Database["public"]["Enums"]["report_status"];
-          user_id: string;
+          user_id: string | null;
         };
         Insert: {
           created_at?: string;
           id?: string;
           spot_id: string;
           status: Database["public"]["Enums"]["report_status"];
-          user_id: string;
+          user_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["reports"]["Insert"]>;
         Relationships: [];

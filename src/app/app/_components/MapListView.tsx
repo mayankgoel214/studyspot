@@ -264,7 +264,7 @@ export function MapListView({
                   <div className="text-[12px] text-muted-fg mt-0.5 flex items-center gap-1.5">
                     {selectedSpot.walk_min} min walk
                     <i className="h-[3px] w-[3px] rounded-full bg-bark-300" />
-                    {selectedSpot.occPct}% full
+                    {selectedSpot.occPct === null ? "No recent reports" : `${selectedSpot.occPct}% full`}
                     <i className="h-[3px] w-[3px] rounded-full bg-bark-300" />
                     {selectedSpot.reportCount} reports
                   </div>
@@ -349,7 +349,7 @@ export function MapListView({
                     <div className="mt-2 h-1 bg-cream-100 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full ${cls === "open" ? "bg-open" : cls === "fill" ? "bg-fill" : "bg-full"}`}
-                        style={{ width: `${s.occPct}%` }}
+                        style={{ width: `${s.occPct ?? 0}%` }}
                       />
                     </div>
                   </div>

@@ -1,16 +1,27 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { slotToISO } from "@/lib/domain";
+import { checkReportLimit, visitorKeyFrom } from "@/lib/rate-limit";
 
 const ReportSchema = z.object({
   spot_id: z.string(),
   status: z.enum(["open", "fill", "full"]),
 });
 
+/**
+ * Files an occupancy report.
+ *
+ * No account required. Asking someone to sign up before they can answer "is
+ * this room busy right now" is how a crowdsourced product ends up with no
+ * crowd, and it is why the deployed app was unusable to anyone who was not
+ * already a user. A signed-in report carries its author; a signed-out one
+ * carries none, and row-level security allows exactly those two shapes.
+ */
 export async function submitReport(formData: FormData) {
   const parsed = ReportSchema.safeParse({
     spot_id: formData.get("spot_id"),
@@ -18,15 +29,22 @@ export async function submitReport(formData: FormData) {
   });
   if (!parsed.success) return { ok: false, error: "Invalid report" };
 
+  const limit = checkReportLimit(visitorKeyFrom(await headers()));
+  if (!limit.allowed) {
+    return {
+      ok: false,
+      error: "That is a lot of reports in one hour. Try again a bit later.",
+    };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in" };
 
   const { error } = await supabase.from("reports").insert({
     spot_id: parsed.data.spot_id,
-    user_id: user.id,
+    user_id: user?.id ?? null,
     status: parsed.data.status,
   });
   if (error) return { ok: false, error: error.message };

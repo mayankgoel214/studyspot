@@ -22,10 +22,12 @@ export default async function SpotDetail({
   const isSaved = savedIds.has(id);
 
   const cls = occClass(spot.occPct);
-  const ringColor = cls === "open" ? "#6f9b6c" : cls === "fill" ? "#d39a3b" : "#c45a4a";
+  const ringColor =
+    cls === "open" ? "#6f9b6c" : cls === "fill" ? "#d39a3b" : cls === "full" ? "#c45a4a" : "#c9c0b0";
   const ringR = 14;
   const ringC = 2 * Math.PI * ringR;
-  const ringOff = ringC - (spot.occPct / 100) * ringC;
+  // An unknown occupancy draws an empty ring rather than a full or a zero one.
+  const ringOff = spot.occPct === null ? ringC : ringC - (spot.occPct / 100) * ringC;
 
   const amenities = [
     { k: "quiet", label: "Quiet zones", icon: <Icons.Quiet width={16} height={16} />, on: spot.amenities.quiet },
@@ -63,8 +65,9 @@ export default async function SpotDetail({
         />
         <div
           className="absolute top-[60px] left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider text-bark-800 border border-bark-900/[0.06]"
-          dangerouslySetInnerHTML={{ __html: spot.type }}
-        />
+        >
+          {spot.type}
+        </div>
         <svg viewBox="0 0 200 200" fill="none" style={{ width: "60%", height: "60%", opacity: 0.85 }}>
           <rect x="40" y="60" width="120" height="120" rx="6" fill="#fbf8f0" opacity="0.95" />
           <rect x="55" y="78" width="20" height="24" rx="2" fill="#a78c70" opacity="0.5" />
@@ -93,7 +96,7 @@ export default async function SpotDetail({
               />
             </svg>
             <div className="absolute inset-0 grid place-items-center text-[11px] font-bold text-bark-900">
-              {spot.occPct}%
+              {spot.occPct === null ? "—" : `${spot.occPct}%`}
             </div>
           </div>
           <div>
@@ -101,7 +104,15 @@ export default async function SpotDetail({
               {occLabel(spot.occPct)}
             </div>
             <div className="text-[14px] font-semibold text-bark-900">
-              {Math.round((100 - spot.occPct) / 2)} seats free
+              {/*
+                This used to read "N seats free", computed as (100 - occPct) / 2.
+                There is no seat-count column anywhere in the schema, so that
+                number was arithmetic on a percentage dressed up as a capacity
+                reading. What is actually known is how many people reported.
+              */}
+              {spot.reportCount === 0
+                ? "Nobody has reported recently"
+                : `${spot.reportCount} report${spot.reportCount === 1 ? "" : "s"} in the last 45 min`}
             </div>
           </div>
         </div>
@@ -118,7 +129,7 @@ export default async function SpotDetail({
         <div className="text-[13px] text-muted-fg mt-1 flex items-center gap-1.5">
           Virginia Tech
           <i className="h-[3px] w-[3px] rounded-full bg-bark-300" />
-          <span dangerouslySetInnerHTML={{ __html: spot.type }} />
+          <span>{spot.type}</span>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mt-5 bg-cream-100 rounded-[18px] p-3.5">

@@ -52,7 +52,7 @@ export type ProfileRow = {
 export type ReportWithProfile = ReportRow & { profile: ProfileRow | null };
 
 export type SpotComputed = SpotRow & {
-  occPct: number;
+  occPct: number | null;
   reportCount: number;
   lastReport: ReportWithProfile | null;
   recentReports: ReportWithProfile[];
@@ -66,11 +66,15 @@ export const REPORT_WINDOW_MIN = 45;
  * Reports older than REPORT_WINDOW_MIN are dropped.
  */
 export function computeOccupancy(reports: ReportRow[], now: Date = new Date()): {
-  occPct: number;
+  occPct: number | null;
   recent: ReportRow[];
 } {
   const recent = reports.filter((r) => minsBetween(r.created_at, now) < REPORT_WINDOW_MIN);
-  if (recent.length === 0) return { occPct: 30, recent };
+  // Null, not a number. This used to return 30, which rendered as a confident
+  // "30% full" for a spot nobody had reported on — a hardcoded percentage in a
+  // product whose README promises there are none. A spot with no recent reports
+  // has no known occupancy, and the interface now says so.
+  if (recent.length === 0) return { occPct: null, recent };
   let totalW = 0;
   let totalScore = 0;
   for (const r of recent) {
@@ -95,13 +99,25 @@ export function relTime(iso: string, now: Date = new Date()): string {
   return `${Math.round(m / 60 / 24)}d ago`;
 }
 
-export function occClass(p: number): "open" | "fill" | "full" {
+/**
+ * The four states a spot can be in, including the one that used to be missing.
+ *
+ * `unknown` exists because a spot nobody has reported on in the last 45 minutes
+ * has no occupancy, and the previous code answered that question with the
+ * number 30. Every caller now has to decide what to show when nothing is known,
+ * which is the point.
+ */
+export type OccClass = "open" | "fill" | "full" | "unknown";
+
+export function occClass(p: number | null): OccClass {
+  if (p === null) return "unknown";
   if (p < 40) return "open";
   if (p < 75) return "fill";
   return "full";
 }
 
-export function occLabel(p: number): string {
+export function occLabel(p: number | null): string {
+  if (p === null) return "No recent reports";
   if (p < 40) return "Open";
   if (p < 75) return "Filling up";
   return "Full";
@@ -127,7 +143,9 @@ export function spotPasses(spot: SpotComputed, filters: Set<Filter>): boolean {
     if (f === "quiet" && !spot.amenities.quiet) return false;
     if (f === "outlets" && !spot.amenities.outlets) return false;
     if (f === "wifi" && !spot.amenities.wifi) return false;
-    if (f === "open" && (!spot.open_now || spot.occPct >= 95)) return false;
+    // A spot with no reports is not excluded by the "open" filter: unknown is
+    // not the same as full, and hiding it would quietly narrow the map.
+    if (f === "open" && (!spot.open_now || (spot.occPct !== null && spot.occPct >= 95))) return false;
   }
   return true;
 }

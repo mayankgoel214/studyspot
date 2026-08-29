@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Icons } from "@/lib/icons";
 import { toggleSaved } from "../actions";
 
@@ -13,6 +13,7 @@ export function SaveButton({
   initialSaved: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [saved, setSaved] = useState(initialSaved);
   const [pending, startTransition] = useTransition();
 
@@ -24,8 +25,17 @@ export function SaveButton({
     fd.set("spot_id", spotId);
     startTransition(async () => {
       const res = await toggleSaved(fd);
-      if (!res.ok) setSaved(previous);
-      else router.refresh();
+      if (!res.ok) {
+        setSaved(previous);
+        // Saving is one of the few things that genuinely needs an account, so a
+        // signed-out tap is an invitation rather than a failure. Reporting
+        // occupancy, which is the thing most visitors come to do, needs none.
+        if (res.error === "Not signed in") {
+          router.push(`/sign-in?next=${encodeURIComponent(pathname)}`);
+        }
+        return;
+      }
+      router.refresh();
     });
   }
 
